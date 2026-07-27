@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKUMBWA TRONIX | My Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{% static 'js/api.js' %}"></script>
+    <style>
+        *{ margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root{
+            --blue: #3b82f6; --blue-hover: #2563eb; --blue-glow: rgba(59, 130, 246, 0.15);
+            --green: #10b981; --orange: #f59e0b; --red: #ef4444;
+            --sidebar: #0b0f19; --sidebar2: #111827; --bg: #0f172a;
+            --card: #1e293b; --card-border: #334155;
+            --text-primary: #f8fafc; --text-secondary: #94a3b8; --text-muted: #64748b;
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body{ background: var(--bg); font-family: Inter, sans-serif; color: var(--text-primary); overflow-x: hidden; }
+
+        ::-webkit-scrollbar{ width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track{ background: var(--sidebar); }
+        ::-webkit-scrollbar-thumb{ background: var(--card-border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover{ background: var(--text-muted); }
+
+        .wrapper{ display: flex; min-height: 100vh; }
+
+        /* ============ SIDEBAR ============ */
+        .sidebar{
+            width: 270px; background: linear-gradient(180deg, var(--sidebar), var(--sidebar2)); color: white;
+            position: fixed; left: 0; top: 0; bottom: 0; display: flex; flex-direction: column; z-index: 999;
+            border-right: 1px solid rgba(255,255,255,.05); box-shadow: 4px 0 30px rgba(0,0,0,.4);
+        }
+        .logo{ padding: 30px 25px; border-bottom: 1px solid rgba(255,255,255,.05); background: rgba(0,0,0,.2); }
+        .logo h2{ font-family: "Space Grotesk"; font-size: 22px; font-weight: 700; letter-spacing: -.5px; }
+        .logo span{ color: var(--blue); text-shadow: 0 0 15px var(--blue-glow); }
+        .logo small{ display: block; margin-top: 6px; opacity: .6; letter-spacing: 2.5px; text-transform: uppercase; font-size: 10px; font-weight: 600; }
+        .menu{ padding: 20px; display: flex; flex-direction: column; justify-content: space-between; height: calc(100vh - 100px); }
+        .menu-links{ display: flex; flex-direction: column; gap: 4px; }
+        .menu a{ text-decoration: none; color: var(--text-secondary); padding: 14px 18px; border-radius: 10px; display: flex; align-items: center; gap: 14px; transition: var(--transition); font-size: 14px; font-weight: 500; border: 1px solid transparent; cursor: pointer; }
+        .menu a:hover{ color: white; background: rgba(255,255,255,.04); transform: translateX(4px); border-color: rgba(255,255,255,.05); }
+        .menu a.active{ background: linear-gradient(90deg, var(--blue-hover), var(--blue)); color: white; box-shadow: 0 4px 20px rgba(59,130,246,.3); }
+        .menu-footer{ padding-top: 15px; border-top: 1px solid rgba(255,255,255,.05); margin-top: auto; }
+        .menu-footer a{ color: var(--red); }
+
+        /* ============ MAIN / PANEL SWITCHING ============ */
+        .main{ margin-left: 270px; width: calc(100% - 270px); padding: 35px; }
+        .panel{ display: none; }
+        .panel.active{ display: block; }
+        .page-title h1{ font-family: "Space Grotesk"; font-size: 32px; margin-bottom: 6px; }
+        .page-title p{ color: var(--text-secondary); font-size: 14px; margin-bottom: 30px; }
+
+        /* ============ STAT CARDS ============ */
+        .stat-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card{ background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); }
+        .stat-card .icon{ width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 14px; }
+        .stat-card .value{ font-family: "Space Grotesk"; font-size: 26px; font-weight: 700; }
+        .stat-card .label{ color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
+
+        /* ============ CARD / TABLE ============ */
+        .section{ background: var(--card); border-radius: 20px; padding: 30px; box-shadow: var(--shadow); border: 1px solid var(--card-border); margin-bottom: 25px; }
+        .section h2{ font-family: "Space Grotesk"; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 20px; }
+        table{ width: 100%; border-collapse: collapse; font-size: 14px; }
+        th{ text-align: left; padding: 12px 14px; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--card-border); }
+        td{ padding: 14px; border-bottom: 1px solid rgba(255,255,255,.04); }
+        tr:last-child td{ border-bottom: none; }
+        .badge{ padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; display: inline-block; }
+        .badge-pending{ background: rgba(245,158,11,.15); color: var(--orange); }
+        .badge-progress{ background: rgba(59,130,246,.15); color: var(--blue); }
+        .badge-ready{ background: rgba(16,185,129,.15); color: var(--green); }
+        .badge-completed{ background: rgba(148,163,184,.15); color: var(--text-secondary); }
+        .badge-cancelled{ background: rgba(239,68,68,.15); color: var(--red); }
+        .empty-state{ text-align: center; padding: 40px; color: var(--text-muted); }
+
+        /* ============ ROADMAP / COMING SOON ============ */
+        .roadmap-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .roadmap-item{ background: rgba(255,255,255,.02); border: 1px dashed var(--card-border); border-radius: 12px; padding: 18px; display: flex; gap: 14px; align-items: flex-start; }
+        .roadmap-item i{ color: var(--blue); font-size: 18px; margin-top: 2px; }
+        .roadmap-item h4{ font-size: 14px; margin-bottom: 4px; }
+        .roadmap-item p{ font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+        @media(max-width: 768px){
+            .sidebar{ left: -270px; transition: left 0.25s ease; }
+            .sidebar.open{ left: 0; }
+            .main{ margin-left: 0; width: 100%; padding: 20px; padding-top: 90px; }
+            .stat-grid, .roadmap-grid{ grid-template-columns: 1fr; }
+            .mobile-topbar{
+                display: flex; align-items: center; justify-content: space-between;
+                position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 998;
+                background: var(--sidebar2); padding: 0 18px; border-bottom: 1px solid rgba(255,255,255,.08);
+            }
+            .mobile-topbar h2{ font-family: "Space Grotesk"; font-size: 17px; color: white; margin: 0; }
+            .mobile-topbar h2 span{ color: var(--blue); }
+            .mobile-menu-btn{ background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 6px; }
+            .sidebar-backdrop{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 997; }
+            .sidebar-backdrop.open{ display: block; }
+        }
+        .mobile-topbar{ display: none; }
+
+        /* ============================================================
+           CHAT MODAL
+           ============================================================ */
+        .chat-modal-overlay{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 1300; align-items: center; justify-content: center; }
+        .chat-modal-box{ width: 460px; max-width: 92vw; height: 560px; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
+        .chat-modal-header{ padding: 16px 20px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
+        .chat-modal-header h3{ font-family: "Space Grotesk"; font-size: 16px; }
+        .chat-modal-header button{ background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; }
+        .chat-messages{ flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-bubble{ max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.4; }
+        .chat-bubble-mine{ align-self: flex-end; background: var(--blue); color: white; border-bottom-right-radius: 3px; }
+        .chat-bubble-theirs{ align-self: flex-start; background: rgba(255,255,255,.06); border-bottom-left-radius: 3px; }
+        .chat-sender{ display: block; font-size: 11px; font-weight: 700; opacity: .8; margin-bottom: 2px; }
+        .chat-time{ display: block; font-size: 10px; opacity: .6; margin-top: 4px; text-align: right; }
+        .chat-input-row{ display: flex; gap: 10px; padding: 14px 16px; border-top: 1px solid var(--card-border); }
+        .chat-input-row input{ flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--card-border); border-radius: 20px; padding: 10px 16px; color: var(--text-primary); outline: none; font-size: 13px; }
+        .chat-input-row button{ background: var(--blue); border: none; color: white; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .chat-input-row button:hover{ background: var(--blue-hover); }
+        .btn-chat-row{ padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--card-border); background: rgba(255,255,255,.06); color: var(--text-primary); display: inline-flex; align-items: center; gap: 6px; }
+        .btn-chat-row:hover{ background: rgba(255,255,255,.1); }
+    </style>
+</head>
+<body data-initial-tab="{{ initial_tab|default:'overview' }}">
+<div class="wrapper">
+
+    <!-- ============ MOBILE TOPBAR (hidden on desktop) ============ -->
+    <div class="mobile-topbar">
+        <h2>MKUMBWA <span>TRONIX</span></h2>
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+
+    <!-- ============ CHAT MODAL (shared) ============ -->
+    <div class="chat-modal-overlay" id="chatModal">
+        <div class="chat-modal-box">
+            <div class="chat-modal-header">
+                <h3 id="chatModalTitle">Chat</h3>
+                <button onclick="closeChatModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="chat-messages" id="chatMessagesContainer">
+                <p class="empty-state">Loading messages...</p>
+            </div>
+            <form class="chat-input-row" id="chatSendForm">
+                <input type="text" id="chatMessageInput" placeholder="Type a message..." autocomplete="off" required>
+                <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="logo">
+            <h2>MKUMBWA <span>TRONIX</span></h2>
+            <small>Customer Account</small>
+        </div>
+        <div class="menu">
+            <div class="menu-links">
+                <a data-panel="overview" class="active"><i class="fa-solid fa-house"></i> Overview</a>
+                <a data-panel="bookings"><i class="fa-solid fa-screwdriver-wrench"></i> My Bookings</a>
+                <a data-panel="payments"><i class="fa-solid fa-credit-card"></i> Payments</a>
+                <a data-panel="roadmap"><i class="fa-solid fa-rocket"></i> Coming Soon</a>
+            </div>
+            <div class="menu-footer">
+                <a onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- ================= OVERVIEW ================= -->
+        <div id="panel-overview" class="panel active">
+            <div class="page-title">
+                <h1>Welcome back<span id="overviewCustomerName"></span></h1>
+                <p>Here's a snapshot of your repairs and account activity.</p>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="icon" style="background:rgba(59,130,246,.15); color:var(--blue);"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                    <div class="value" id="statActive">–</div>
+                    <div class="label">Active Repairs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon" style="background:rgba(245,158,11,.15); color:var(--orange);"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div class="value" id="statPending">–</div>
+                    <div class="label">Pending Assessment</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon" style="background:rgba(16,185,129,.15); color:var(--green);"><i class="fa-solid fa-box-open"></i></div>
+                    <div class="value" id="statReady">–</div>
+                    <div class="label">Ready for Pickup</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon" style="background:rgba(148,163,184,.15); color:var(--text-secondary);"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div class="value" id="statCompleted">–</div>
+                    <div class="label">Completed Jobs</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fa-solid fa-bolt text-amber-500"></i> Recent Activity</h2>
+                <div id="recentActivityContainer">
+                    <p class="empty-state">Loading your recent bookings...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MY BOOKINGS ================= -->
+        <div id="panel-bookings" class="panel">
+            <div class="page-title">
+                <h1>My Bookings</h1>
+                <p>Every repair or service request tied to your account, current and past.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fa-solid fa-list-check text-amber-500"></i> Current & In Progress</h2>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr><th>Device</th><th>Service</th><th>Status</th><th>Quoted Price</th><th>Requested</th><th>Chat</th></tr>
+                        </thead>
+                        <tbody id="currentBookingsBody">
+                            <tr><td colspan="6" class="empty-state">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fa-solid fa-clock-rotate-left text-amber-500"></i> History (Completed / Cancelled)</h2>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr><th>Device</th><th>Service</th><th>Status</th><th>Final Price</th><th>Completed</th></tr>
+                        </thead>
+                        <tbody id="historyBookingsBody">
+                            <tr><td colspan="5" class="empty-state">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAYMENTS ================= -->
+        <div id="panel-payments" class="panel">
+            <div class="page-title">
+                <h1>Payment History</h1>
+                <p>All payments recorded against your service requests.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fa-solid fa-receipt text-amber-500"></i> Transactions</h2>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr><th>Date</th><th>Amount (TZS)</th><th>Method</th><th>Status</th><th>Reference</th></tr>
+                        </thead>
+                        <tbody id="paymentsBody">
+                            <tr><td colspan="5" class="empty-state">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= COMING SOON ================= -->
+        <div id="panel-roadmap" class="panel">
+            <div class="page-title">
+                <h1>What's Coming</h1>
+                <p>Features planned for the customer portal — this list is a placeholder, edit it to match the actual roadmap.</p>
+            </div>
+
+            <div class="section">
+                <div class="roadmap-grid">
+                    <div class="roadmap-item" style="border-style:solid; border-color:var(--green);">
+                        <i class="fa-solid fa-circle-check" style="color:var(--green);"></i>
+                        <div><h4>Live Chat With Your Technician <span style="color:var(--green); font-size:11px; font-weight:700;">— LIVE NOW</span></h4><p>Message the technician assigned to your repair directly from the "My Bookings" tab.</p></div>
+                    </div>
+                    <div class="roadmap-item">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <div><h4>Online Booking &amp; Rescheduling</h4><p>Book a new repair slot or reschedule an existing one without calling in.</p></div>
+                    </div>
+                    <div class="roadmap-item">
+                        <i class="fa-solid fa-bell"></i>
+                        <div><h4>SMS / WhatsApp Status Alerts</h4><p>Get notified automatically the moment your device's status changes.</p></div>
+                    </div>
+                    <div class="roadmap-item">
+                        <i class="fa-solid fa-file-invoice"></i>
+                        <div><h4>Downloadable Invoices &amp; Receipts</h4><p>Generate a PDF receipt for any completed payment.</p></div>
+                    </div>
+                    <div class="roadmap-item">
+                        <i class="fa-solid fa-star"></i>
+                        <div><h4>Loyalty &amp; Repeat-Customer Rewards</h4><p>Earn credit toward future repairs and accessory purchases.</p></div>
+                    </div>
+                    <div class="roadmap-item">
+                        <i class="fa-solid fa-download"></i>
+                        <div><h4>Digital Delivery Downloads</h4><p>Download recovered files, license keys, and reports straight from a completed ticket.</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    /* ================= AUTH GUARD ================= */
+    const token = localStorage.getItem('access_token');
+    if (!token) { window.location.href = '/'; }
+
+    function logoutUser() {
+        localStorage.clear();
+        window.location.href = '/';
+    }
+
+    /* ================= MOBILE SIDEBAR TOGGLE ================= */
+    function toggleMobileSidebar(){
+        document.querySelector('.sidebar').classList.toggle('open');
+        document.getElementById('sidebarBackdrop').classList.toggle('open');
+    }
+    function closeMobileSidebar(){
+        document.querySelector('.sidebar').classList.remove('open');
+        document.getElementById('sidebarBackdrop').classList.remove('open');
+    }
+
+    /* ================= TAB SWITCHING ================= */
+    document.querySelectorAll('.menu a[data-panel]').forEach(link => {
+        link.addEventListener('click', () => {
+            const name = link.dataset.panel;
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + name).classList.add('active');
+            document.querySelectorAll('.menu a[data-panel]').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            closeMobileSidebar();
+        });
+    });
+
+    /* ================= STATUS BADGE HELPER ================= */
+    const STATUS_BADGE_MAP = {
+        PENDING: 'badge-pending',
+        PROCESSING: 'badge-progress',
+        AWAITING_PARTS: 'badge-progress',
+        TESTING: 'badge-progress',
+        READY: 'badge-ready',
+        COMPLETED: 'badge-completed',
+        CANCELLED: 'badge-cancelled'
+    };
+    const STATUS_LABEL_MAP = {
+        PENDING: 'Pending Assessment',
+        PROCESSING: 'In Progress',
+        AWAITING_PARTS: 'Awaiting Parts',
+        TESTING: 'Quality Testing',
+        READY: 'Ready for Pickup',
+        COMPLETED: 'Completed',
+        CANCELLED: 'Cancelled'
+    };
+    function statusBadge(status) {
+        const cls = STATUS_BADGE_MAP[status] || 'badge-pending';
+        const label = STATUS_LABEL_MAP[status] || status;
+        return `<span class="badge ${cls}">${label}</span>`;
+    }
+    function formatDate(iso) {
+        if (!iso) return '—';
+        return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    function formatTZS(amount) {
+        if (amount === null || amount === undefined) return '—';
+        return Number(amount).toLocaleString();
+    }
+
+    /* ================= DATA LOADING ================= */
+    let allBookings = [];
+
+    async function loadCustomerBookings() {
+        try {
+            const response = await apiRequestRaw('/requests/');
+            if (!response) return;
+            if (!response.ok) throw new Error('Failed to load bookings.');
+
+            const data = await response.json();
+            allBookings = data.results || data;
+            renderOverviewStats(allBookings);
+            renderRecentActivity(allBookings);
+            renderBookingTables(allBookings);
+        } catch (err) {
+            console.error('Booking load failure:', err);
+            document.getElementById('currentBookingsBody').innerHTML =
+                `<tr><td colspan="5" class="empty-state" style="color:var(--red);"><i class="fa-solid fa-triangle-exclamation"></i> Could not load your bookings.</td></tr>`;
+        }
+    }
+
+    async function loadCustomerPayments() {
+        try {
+            const response = await apiRequestRaw('/payments/');
+            if (!response) return;
+            if (!response.ok) throw new Error('Failed to load payments.');
+
+            const data = await response.json();
+            const payments = data.results || data;
+            renderPayments(payments);
+        } catch (err) {
+            console.error('Payment load failure:', err);
+            document.getElementById('paymentsBody').innerHTML =
+                `<tr><td colspan="5" class="empty-state" style="color:var(--red);"><i class="fa-solid fa-triangle-exclamation"></i> Could not load payment history.</td></tr>`;
+        }
+    }
+
+    function renderOverviewStats(bookings) {
+        const active = bookings.filter(b => ['PROCESSING', 'AWAITING_PARTS', 'TESTING'].includes(b.status)).length;
+        const pending = bookings.filter(b => b.status === 'PENDING').length;
+        const ready = bookings.filter(b => b.status === 'READY').length;
+        const completed = bookings.filter(b => b.status === 'COMPLETED').length;
+
+        document.getElementById('statActive').textContent = active;
+        document.getElementById('statPending').textContent = pending;
+        document.getElementById('statReady').textContent = ready;
+        document.getElementById('statCompleted').textContent = completed;
+    }
+
+    function renderRecentActivity(bookings) {
+        const container = document.getElementById('recentActivityContainer');
+        const recent = bookings.slice(0, 5);
+
+        if (recent.length === 0) {
+            container.innerHTML = `<p class="empty-state">No bookings yet. Once you request a service, it will show up here.</p>`;
+            return;
+        }
+
+        container.innerHTML = recent.map(b => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid rgba(255,255,255,.04);">
+                <div>
+                    <div style="font-weight:600;">${b.device_model || b.device_type}</div>
+                    <div style="font-size:12px; color:var(--text-secondary);">Requested ${formatDate(b.created_at)}</div>
+                </div>
+                ${statusBadge(b.status)}
+            </div>
+        `).join('');
+    }
+
+    function renderBookingTables(bookings) {
+        const current = bookings.filter(b => !['COMPLETED', 'CANCELLED'].includes(b.status));
+        const history = bookings.filter(b => ['COMPLETED', 'CANCELLED'].includes(b.status));
+
+        const currentBody = document.getElementById('currentBookingsBody');
+        currentBody.innerHTML = current.length === 0
+            ? `<tr><td colspan="6" class="empty-state">No active bookings right now.</td></tr>`
+            : current.map(b => `
+                <tr>
+                    <td>${b.device_model || b.device_type}</td>
+                    <td>${b.service_type_name || b.service_type || '—'}</td>
+                    <td>${statusBadge(b.status)}</td>
+                    <td>${b.quoted_price ? 'TZS ' + formatTZS(b.quoted_price) : 'Pending quote'}</td>
+                    <td>${formatDate(b.created_at)}</td>
+                    <td><button class="btn-chat-row" onclick="openChatModal(${b.id})"><i class="fa-solid fa-comments"></i> Chat</button></td>
+                </tr>
+            `).join('');
+
+        const historyBody = document.getElementById('historyBookingsBody');
+        historyBody.innerHTML = history.length === 0
+            ? `<tr><td colspan="5" class="empty-state">No completed or cancelled bookings yet.</td></tr>`
+            : history.map(b => `
+                <tr>
+                    <td>${b.device_model || b.device_type}</td>
+                    <td>${b.service_type_name || b.service_type || '—'}</td>
+                    <td>${statusBadge(b.status)}</td>
+                    <td>${b.final_price ? 'TZS ' + formatTZS(b.final_price) : '—'}</td>
+                    <td>${formatDate(b.completed_at)}</td>
+                </tr>
+            `).join('');
+    }
+
+    function renderPayments(payments) {
+        const body = document.getElementById('paymentsBody');
+        body.innerHTML = payments.length === 0
+            ? `<tr><td colspan="5" class="empty-state">No payments recorded yet.</td></tr>`
+            : payments.map(p => `
+                <tr>
+                    <td>${formatDate(p.created_at)}</td>
+                    <td>TZS ${formatTZS(p.amount)}</td>
+                    <td>${p.method}</td>
+                    <td>${statusBadge(p.status === 'CONFIRMED' ? 'COMPLETED' : (p.status === 'FAILED' ? 'CANCELLED' : 'PENDING'))}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size:12px;">${p.transaction_ref || '—'}</td>
+                </tr>
+            `).join('');
+    }
+
+    /* ================= CUSTOMER NAME ================= */
+    const firstName = localStorage.getItem('user_first');
+    if (firstName) {
+        document.getElementById('overviewCustomerName').textContent = `, ${firstName}`;
+    }
+
+    /* ================= INIT ================= */
+    document.addEventListener('DOMContentLoaded', () => {
+        loadCustomerBookings();
+        loadCustomerPayments();
+    });
+
+    /* ================================================================
+       CHAT MODAL
+       ================================================================ */
+    let currentChatSrId = null;
+    let chatPollInterval = null;
+
+    function openChatModal(srId) {
+        currentChatSrId = srId;
+        document.getElementById('chatModalTitle').textContent = `Chat — Ticket SR-${srId}`;
+        document.getElementById('chatModal').style.display = 'flex';
+        loadChatMessages();
+        if (chatPollInterval) clearInterval(chatPollInterval);
+        chatPollInterval = setInterval(loadChatMessages, 8000);
+    }
+
+    function closeChatModal() {
+        document.getElementById('chatModal').style.display = 'none';
+        if (chatPollInterval) clearInterval(chatPollInterval);
+        chatPollInterval = null;
+        currentChatSrId = null;
+    }
+
+    async function loadChatMessages() {
+        if (!currentChatSrId) return;
+        try {
+            const response = await apiRequestRaw(`/service-requests/${currentChatSrId}/messages/`, { method: 'GET' });
+            if (!response || !response.ok) return;
+            const messages = await response.json();
+            const container = document.getElementById('chatMessagesContainer');
+            container.innerHTML = messages.length === 0
+                ? '<p class="empty-state">No messages yet. Ask your technician anything about the repair.</p>'
+                : messages.map(m => `
+                    <div class="chat-bubble ${m.sender_role === 'CUSTOMER' ? 'chat-bubble-mine' : 'chat-bubble-theirs'}">
+                        <span class="chat-sender">${m.sender_display_name}</span>
+                        <p>${m.body}</p>
+                        <span class="chat-time">${new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                `).join('');
+            container.scrollTop = container.scrollHeight;
+        } catch (err) {
+            console.error("Chat load failure:", err);
+        }
+    }
+
+    document.getElementById('chatSendForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const input = document.getElementById('chatMessageInput');
+        const body = input.value.trim();
+        if (!body || !currentChatSrId) return;
+        try {
+            const response = await apiRequestRaw(`/service-requests/${currentChatSrId}/messages/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ body })
+            });
+            if (response && response.ok) {
+                input.value = '';
+                loadChatMessages();
+            }
+        } catch (err) {
+            console.error("Chat send failure:", err);
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MKUMBWA TRONIX | Master Technician ERP Suite</title>
+    <!-- Tailwind CSS v3 via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                        darkbg: '#0b0f19',
+                        cardbg: '#111827',
+                        borderbg: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Real backend API bridge -->
+    <script src="{% static 'js/api.js' %}"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; color: #f3f4f6; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .window-panel { display: none; }
+        .window-panel.active { display: block; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-darkbg text-gray-100 flex flex-col lg:flex-row min-h-screen lg:h-screen overflow-x-hidden lg:overflow-hidden" data-initial-tab="{{ initial_tab|default:'dashboard' }}">
+
+    <!-- SOUND & ALERT SYSTEM -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm pointer-events-none"></div>
+
+    <!-- MOBILE TOP BAR -->
+    <div class="lg:hidden bg-cardbg border-b border-borderbg p-4 flex items-center justify-between z-30 sticky top-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <i class="fa-solid fa-microchip text-md text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-md text-white tracking-tight">MKUMBWA<span class="text-blue-500">TRONIX</span></h1>
+            </div>
+        </div>
+        <button onclick="toggleMobileMenu()" class="p-2 text-gray-300 hover:text-white focus:outline-none">
+            <i id="mobileMenuIcon" class="fa-solid fa-bars text-xl"></i>
+        </button>
+    </div>
+
+    <!-- MOBILE OVERLAY BACKDROP -->
+    <div id="mobileBackdrop" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/70 z-30 hidden lg:hidden transition-opacity"></div>
+
+    <!-- SIDEBAR NAVIGATION WINDOW CONTROLLER -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-72 bg-cardbg border-r border-borderbg flex flex-col justify-between shrink-0 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out h-full overflow-y-auto">
+        <div>
+            <!-- Shop Brand Header -->
+            <div class="p-6 border-b border-borderbg items-center justify-between hidden lg:flex">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                        <i class="fa-solid fa-microchip text-xl text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-lg text-white tracking-tight">MKUMBWA<span class="text-blue-500">TRONIX</span></h1>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-widest font-mono">Pro Workshop ERP v4.0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1.5">
+                <button onclick="switchWindow('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-white transition">
+                    <i class="fa-solid fa-chart-pie w-5 text-center text-lg text-blue-500"></i> Analytics Dashboard
+                </button>
+
+                <button onclick="switchWindow('accessories')" id="nav-accessories" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-white transition">
+                    <i class="fa-solid fa-boxes-packing w-5 text-center text-lg text-emerald-500"></i> Accessories Manager
+                </button>
+
+                <button onclick="switchWindow('spares')" id="nav-spares" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-white transition">
+                    <i class="fa-solid fa-screwdriver-wrench w-5 text-center text-lg text-amber-500"></i> Spare Parts Vault
+                </button>
+
+                <button onclick="switchWindow('jobs')" id="nav-jobs" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-white transition">
+                    <i class="fa-solid fa-laptop-medical w-5 text-center text-lg text-purple-500"></i> Jobs & Repair Bench
+                </button>
+
+                <button onclick="switchWindow('showcase')" id="nav-showcase" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-white transition">
+                    <i class="fa-solid fa-globe w-5 text-center text-lg text-pink-500"></i> Web News & Showcase
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tech Quick Profile + Sign In/Out Dynamic Container -->
+        <div class="p-4 border-t border-borderbg space-y-3 mt-auto">
+            <div class="bg-gray-800/50 p-3 rounded-xl flex items-center gap-3 border border-gray-700/50">
+                <div class="relative">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                        TK
+                    </div>
+                    <span class="w-3 h-3 bg-emerald-500 border-2 border-cardbg rounded-full absolute -bottom-1 -right-1"></span>
+                </div>
+                <div class="overflow-hidden">
+                    <h4 class="text-xs font-bold text-white truncate">Master Bench Chief</h4>
+                    <p class="text-[10px] text-gray-400 font-mono">Live Hardware Duty</p>
+                </div>
+            </div>
+            
+            <div id="authButtonContainer">
+                <button id="authBtn" onclick="handleAuthAction()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 transition">
+                    <i id="authBtnIcon" class="fa-solid fa-right-from-bracket"></i> <span id="authBtnText">Sign Out</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN WINDOW CONTENT REGION -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden w-full">
+
+        <!-- TOP APP BAR -->
+        <header class="h-auto min-h-[4rem] border-b border-borderbg bg-cardbg/80 backdrop-blur px-4 lg:px-8 py-3 lg:py-0 flex flex-col sm:flex-row items-start sm:items-center justify-between shrink-0 gap-3">
+            <div class="flex items-center gap-3">
+                <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="windowTitle" class="text-xs sm:text-sm font-bold uppercase tracking-wider text-gray-300 font-mono">Window: Analytics Dashboard</span>
+            </div>
+
+            <!-- Top Controls -->
+            <div class="flex items-center justify-between w-full sm:w-auto gap-4">
+                <button onclick="syncWorkshopDB()" class="text-xs font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-lg hover:bg-blue-500/20 transition flex items-center gap-2">
+                    <i class="fa-solid fa-arrows-rotate"></i> <span class="hidden sm:inline">Sync Workshop DB</span>
+                </button>
+                <div class="h-4 w-px bg-gray-800 hidden sm:block"></div>
+                <div class="text-right">
+                    <span id="liveClock" class="block text-xs font-mono font-bold text-gray-300">00:00:00 PM</span>
+                    <span class="block text-[10px] text-gray-500 uppercase tracking-widest font-mono">Dar es Salaam Bench</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTAINER FOR ALL SWITCHABLE WINDOW PANELS -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative">
+
+            <!-- WINDOW 1: FINANCIAL & SHOP DASHBOARD SUMMARY -->
+            <section id="window-dashboard" class="window-panel active space-y-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                    <div class="bg-cardbg border border-borderbg p-6 rounded-2xl relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold uppercase text-gray-400">Total Net Workshop Profit</span>
+                            <span class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg text-sm"><i class="fa-solid fa-vault"></i></span>
+                        </div>
+                        <h3 id="dashTotalProfit" class="text-2xl font-black font-mono text-emerald-400 mt-4">TZS 0</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Calculated after deducting all spare & buy costs</p>
+                    </div>
+
+                    <div class="bg-cardbg border border-borderbg p-6 rounded-2xl relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold uppercase text-gray-400">Gross Job Inflow</span>
+                            <span class="p-2 bg-purple-500/10 text-purple-400 rounded-lg text-sm"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+                        </div>
+                        <h3 id="dashGrossJobs" class="text-2xl font-black font-mono text-purple-400 mt-4">TZS 0</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Total revenue quoted/charged from repair desk</p>
+                    </div>
+
+                    <div class="bg-cardbg border border-borderbg p-6 rounded-2xl relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold uppercase text-gray-400">Accessories Net Profit</span>
+                            <span class="p-2 bg-blue-500/10 text-blue-400 rounded-lg text-sm"><i class="fa-solid fa-tags"></i></span>
+                        </div>
+                        <h3 id="dashAccProfit" class="text-2xl font-black font-mono text-blue-400 mt-4">TZS 0</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Selling price minus wholesale buy price</p>
+                    </div>
+
+                    <div class="bg-cardbg border border-borderbg p-6 rounded-2xl relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold uppercase text-gray-400">Active Repair Queue</span>
+                            <span class="p-2 bg-amber-500/10 text-amber-400 rounded-lg text-sm"><i class="fa-solid fa-microchip"></i></span>
+                        </div>
+                        <h3 id="dashActiveJobsCount" class="text-2xl font-black font-mono text-amber-400 mt-4">0 Repairs</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Devices currently on bench or pending</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-cardbg border border-borderbg rounded-2xl p-6">
+                        <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between flex-wrap gap-2">
+                            <span><i class="fa-solid fa-chart-line text-amber-500 mr-2"></i> Spares Capital & Expense Metrics</span>
+                            <span class="text-xs font-mono text-gray-400">Live Vault Stats</span>
+                        </h3>
+                        <div class="space-y-4 font-mono text-xs">
+                            <div class="flex justify-between items-center p-3 bg-gray-900/60 rounded-xl border border-gray-800">
+                                <span class="text-gray-400">Total Capital in Spares Inventory:</span>
+                                <span id="dashSpareCap" class="font-bold text-amber-400">TZS 0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-900/60 rounded-xl border border-gray-800">
+                                <span class="text-gray-400">Spares Consumed in Jobs:</span>
+                                <span id="dashSpareConsumed" class="font-bold text-red-400">TZS 0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-900/60 rounded-xl border border-gray-800">
+                                <span class="text-gray-400">Unique Spare Component SKUs:</span>
+                                <span id="dashSpareTypes" class="font-bold text-white">0 Types</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-cardbg border border-borderbg rounded-2xl p-6">
+                        <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between flex-wrap gap-2">
+                            <span><i class="fa-solid fa-bag-shopping text-emerald-500 mr-2"></i> Retail Accessories Overview</span>
+                            <span class="text-xs font-mono text-gray-400">Stock Turnovers</span>
+                        </h3>
+                        <div class="space-y-4 font-mono text-xs">
+                            <div class="flex justify-between items-center p-3 bg-gray-900/60 rounded-xl border border-gray-800">
+                                <span class="text-gray-400">Total Wholesale Capital Investment:</span>
+                                <span id="dashAccBuyCap" class="font-bold text-gray-300">TZS 0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-900/60 rounded-xl border border-gray-800">
+                                <span class="text-gray-400">Total Units Sold to Date:</span>
+                                <span id="dashAccUnitsSold" class="font-bold text-emerald-400">0 Units</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-900/60 rounded-xl border border-gray-800">
+                                <span class="text-gray-400">Remaining Warehouse Units:</span>
+                                <span id="dashAccUnitsRem" class="font-bold text-blue-400">0 Units</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW 2: ACCESSORIES MANAGEMENT & AUTOMATED PROFIT CALCULATOR -->
+            <section id="window-accessories" class="window-panel space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-cardbg border border-borderbg p-6 rounded-2xl h-fit">
+                        <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-cart-plus text-emerald-500"></i> Register New Accessory Batch
+                        </h3>
+                        <form id="formAddAccessory" onsubmit="event.preventDefault(); registerAccessory();" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Accessory Title / Item Name</label>
+                                <input type="text" id="accName" required placeholder="e.g. Anker 65W GaN Fast Charger" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-emerald-500 outline-none">
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-bold text-gray-400 mb-1">Buy Price (Wholesale)</label>
+                                    <input type="number" id="accBuyPrice" required placeholder="15000" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-emerald-500 outline-none font-mono">
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-gray-400 mb-1">Sell Price (Retail)</label>
+                                    <input type="number" id="accSellPrice" required placeholder="35000" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-emerald-500 outline-none font-mono">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Quantity Purchased / Brought</label>
+                                <input type="number" id="accQty" required placeholder="20" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-emerald-500 outline-none font-mono">
+                            </div>
+                            <label class="flex items-center gap-3 p-3 bg-gray-900 border border-gray-700 rounded-xl cursor-pointer hover:border-emerald-500 transition">
+                                <input type="checkbox" id="accUsableAsSpare" class="w-4 h-4 accent-emerald-500">
+                                <span class="text-gray-300">
+                                    <span class="block font-bold">Also usable as a repair spare?</span>
+                                    <span class="block text-[10px] text-gray-500 font-normal normal-case">Registers this item in the Spares Vault too, so technicians can attach it to a Job</span>
+                                </span>
+                            </label>
+                            <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition shadow-lg shadow-emerald-600/20 uppercase tracking-wider text-[11px]">
+                                Add Stock to Showroom
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-cardbg border border-amber-500/20 rounded-2xl p-6">
+                            <h3 class="text-md font-bold text-white mb-1 flex items-center gap-2">
+                                <i class="fa-solid fa-truck-ramp-box text-amber-500"></i> Restock Existing Item
+                            </h3>
+                            <p class="text-[11px] text-gray-500 mb-4">Already have this product in the catalog? Add to its stock here instead of registering it again — keeps one clean record per product, no duplicates.</p>
+                            <form id="formRestockAccessory" onsubmit="event.preventDefault(); restockAccessory();" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+                                <div class="sm:col-span-2">
+                                    <label class="block font-bold text-gray-400 mb-1 text-xs">Select Product</label>
+                                    <select id="restockSelect" required class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none text-xs font-mono">
+                                        <option value="">Choose an accessory...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-gray-400 mb-1 text-xs">Add Quantity</label>
+                                    <input type="number" id="restockQty" min="1" required placeholder="10" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none text-xs font-mono">
+                                </div>
+                                <div>
+                                    <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition text-[11px] uppercase tracking-wider">
+                                        Restock
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="bg-cardbg border border-borderbg rounded-2xl p-6 overflow-hidden">
+                            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                                <h3 class="text-md font-bold text-white"><i class="fa-solid fa-boxes-stacked text-emerald-500 mr-2"></i> Accessories Stock & Profit Engine</h3>
+                                <span class="text-xs font-mono text-gray-400">Auto-Calculating Sales</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead class="bg-gray-900/80 text-gray-400 font-mono uppercase">
+                                        <tr>
+                                            <th class="p-3 border-b border-gray-800">Item Title / SKU</th>
+                                            <th class="p-3 border-b border-gray-800">Cost (Buy/Sell)</th>
+                                            <th class="p-3 border-b border-gray-800">Brought</th>
+                                            <th class="p-3 border-b border-gray-800">Remained</th>
+                                            <th class="p-3 border-b border-gray-800">Sold</th>
+                                            <th class="p-3 border-b border-gray-800">Total Profit Made</th>
+                                            <th class="p-3 border-b border-gray-800 text-right">Quick Sell</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="accessoriesTableBody" class="divide-y divide-gray-800 font-mono">
+                                        <tr><td colspan="7" class="p-4 text-center text-gray-500">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW 3: SPARE PARTS INVENTORY (NEW & USED COMPONENTS) -->
+            <section id="window-spares" class="window-panel space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-cardbg border border-borderbg p-6 rounded-2xl h-fit">
+                        <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-puzzle-piece text-amber-500"></i> Register Spare Component
+                        </h3>
+                        <form id="formAddSpare" onsubmit="event.preventDefault(); registerSpare();" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Spare Component Name</label>
+                                <input type="text" id="spareName" required placeholder="e.g. Original iPhone 13 OLED Assembly" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Unique SKU Code *</label>
+                                <input type="text" id="spareSku" required placeholder="e.g. OLED-IPH13" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none font-mono uppercase">
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-bold text-gray-400 mb-1">Condition</label>
+                                    <select id="spareCondition" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none">
+                                        <option value="NEW">Brand New</option>
+                                        <option value="USED">Used / Extracted</option>
+                                        <option value="REFURB">Refurbished</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-gray-400 mb-1">Unit Cost (Wholesale)</label>
+                                    <input type="number" id="spareCost" required placeholder="45000" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none font-mono">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-bold text-gray-400 mb-1">Retail / Sell Price</label>
+                                    <input type="number" id="spareRetail" required placeholder="65000" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none font-mono">
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-gray-400 mb-1">Initial Stock Quantity</label>
+                                    <input type="number" id="spareQty" required placeholder="10" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none font-mono">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition shadow-lg shadow-amber-600/20 uppercase tracking-wider text-[11px]">
+                                Add Spare to Vault
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-cardbg border border-borderbg rounded-2xl p-6">
+                        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                            <h3 class="text-md font-bold text-white"><i class="fa-solid fa-vault text-amber-500 mr-2"></i> Workshop Hardware Component Vault</h3>
+                            <span class="text-xs font-mono text-gray-400">Available For Repairs</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-gray-900/80 text-gray-400 font-mono uppercase">
+                                    <tr>
+                                        <th class="p-3 border-b border-gray-800">Spare Details</th>
+                                        <th class="p-3 border-b border-gray-800">Condition</th>
+                                        <th class="p-3 border-b border-gray-800">Unit Wholesale Cost</th>
+                                        <th class="p-3 border-b border-gray-800">Stock Available</th>
+                                        <th class="p-3 border-b border-gray-800">Total Valuation</th>
+                                        <th class="p-3 border-b border-gray-800 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sparesTableBody" class="divide-y divide-gray-800 font-mono">
+                                    <tr><td colspan="6" class="p-4 text-center text-gray-500">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW 4: JOBS MANAGEMENT & REPAIR LEDGER -->
+            <section id="window-jobs" class="window-panel space-y-8">
+                <div class="bg-cardbg border border-borderbg p-6 rounded-2xl">
+                    <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between flex-wrap gap-2">
+                        <span><i class="fa-solid fa-file-signature text-purple-500 mr-2"></i> Intake New Repair Job Ticket</span>
+                        <span class="text-xs font-mono text-purple-400">Calculates Daily Profit Automatically</span>
+                    </h3>
+                    <form id="formAddJob" onsubmit="event.preventDefault(); createJobTicket();" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                        <div>
+                            <label class="block font-bold text-gray-400 mb-1">Customer Name *</label>
+                            <input type="text" id="jobCustName" required placeholder="John Mgamba" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-400 mb-1">Phone Number *</label>
+                            <input type="tel" id="jobCustPhone" required placeholder="0712 345 678" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-400 mb-1">Device Type *</label>
+                            <input type="text" id="jobDeviceType" required placeholder="Laptop, Phone, PS5..." class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-400 mb-1">Device Model *</label>
+                            <input type="text" id="jobDeviceModel" required placeholder="MacBook Pro M1 2020" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-400 mb-1">Service / Repair Needed *</label>
+                            <input type="text" id="jobServiceDesc" required placeholder="e.g. Screen replacement, water damage cleanup, battery swap..." class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-400 mb-1">Attach Consumed Spare</label>
+                            <div class="flex gap-2">
+                                <select id="jobSpareSelect" onchange="updateSpareQtyMax('jobSpareSelect', 'jobSpareQty')" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none font-mono">
+                                    <option value="">None / Labor Only</option>
+                                </select>
+                                <input type="number" id="jobSpareQty" min="1" value="1" title="Quantity used" class="w-20 bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none font-mono text-center">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-400 mb-1">Total Repair Fee Charged *</label>
+                            <input type="number" id="jobTotalCharge" required placeholder="120000" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none font-mono">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-400 mb-1">Repair Status</label>
+                            <select id="jobStatus" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none font-mono">
+                                <option value="PENDING">Pending Bench Assessment</option>
+                                <option value="PROCESSING">Micro-soldering / In Progress</option>
+                                <option value="READY">Ready For Pickup</option>
+                                <option value="COMPLETED">Completed & Paid</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end sm:col-span-2 lg:col-span-4">
+                            <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl transition shadow-lg shadow-purple-600/20 uppercase tracking-wider text-[11px]">
+                                Submit Job Ticket
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-cardbg border border-borderbg rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                        <h3 class="text-md font-bold text-white"><i class="fa-solid fa-list-check text-purple-500 mr-2"></i> Master Repair Jobs & Financial Ledger</h3>
+                        <span class="text-xs font-mono text-gray-400">Live Customer Portal Sync</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead class="bg-gray-900/80 text-gray-400 font-mono uppercase">
+                                <tr>
+                                    <th class="p-3 border-b border-gray-800">Job Ref</th>
+                                    <th class="p-3 border-b border-gray-800">Customer & Device</th>
+                                    <th class="p-3 border-b border-gray-800">Total Fee</th>
+                                    <th class="p-3 border-b border-gray-800">Spare Cost Deducted</th>
+                                    <th class="p-3 border-b border-gray-800">Net Job Profit</th>
+                                    <th class="p-3 border-b border-gray-800">Current Status</th>
+                                    <th class="p-3 border-b border-gray-800">Technician</th>
+                                    <th class="p-3 border-b border-gray-800 text-right">Actions / Customer Portal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobsTableBody" class="divide-y divide-gray-800 font-mono">
+                                <tr><td colspan="8" class="p-4 text-center text-gray-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW 5: CUSTOMER SHOWCASE GALLERY & WEBSITE PUBLISHER -->
+            <section id="window-showcase" class="window-panel space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-cardbg border border-borderbg p-6 rounded-2xl h-fit">
+                        <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-bullhorn text-pink-500"></i> Publish Repair Case / Workshop News
+                        </h3>
+                        <form id="formAddPost" onsubmit="event.preventDefault(); publishShowcasePost();" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Headline Title</label>
+                                <input type="text" id="postTitle" required placeholder="e.g. Successful Liquid Damage Recovery on M2 Mac" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Category Tag</label>
+                                <select id="postCategory" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none">
+                                    <option value="COMPLETED_JOB">Repair Gallery Before/After</option>
+                                    <option value="NEWS">Workshop News & Hours</option>
+                                    <option value="TIP">Technician Tip & Guide</option>
+                                    <option value="PROMO">Promotion</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Technical Summary / Description</label>
+                                <textarea id="postContent" required rows="4" placeholder="Detail the micro-soldering steps taken to clean corrosion and replace shorted capacitors..." class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none"></textarea>
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition shadow-lg shadow-pink-600/20 uppercase tracking-wider text-[11px]">
+                                Publish Live to Customer Website
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-cardbg border border-borderbg rounded-2xl p-6 space-y-4">
+                        <div class="flex justify-between items-center border-b border-gray-800 pb-4 flex-wrap gap-2">
+                            <div>
+                                <h3 class="text-md font-bold text-white"><i class="fa-solid fa-globe text-pink-500 mr-2"></i> Live Website Gallery Feed Preview</h3>
+                                <p class="text-xs text-gray-400">This is what customers see when visiting the main shop homepage</p>
+                            </div>
+                            <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full">Web Portal Active</span>
+                        </div>
+
+                        <div id="showcaseFeed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <p class="text-xs text-gray-500">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- CLIENT PORTAL & UPDATE MODAL -->
+    <div id="updateJobModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-cardbg border border-borderbg max-w-lg w-full rounded-2xl p-6 space-y-4 font-mono text-xs my-8">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                <h3 class="text-sm font-bold text-white uppercase" id="modalJobRef">Job Update #000</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div>
+                <label class="block font-bold text-gray-400 mb-1">Update Pipeline Status</label>
+                <select id="modalJobStatus" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white outline-none">
+                    <option value="PENDING">Pending Bench Assessment</option>
+                    <option value="ASSIGNED">Assigned to Technician</option>
+                    <option value="PROCESSING">In Micro-soldering / Diagnostics</option>
+                    <option value="AWAITING_PARTS">Awaiting Spare Parts</option>
+                    <option value="TESTING">Quality Control Testing</option>
+                    <option value="READY">Ready For Customer Pickup</option>
+                    <option value="COMPLETED">Completed & Account Paid</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-bold text-gray-400 mb-1">Quoted Price</label>
+                    <input type="number" id="modalQuoted" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-400 mb-1">Final Price</label>
+                    <input type="number" id="modalFinal" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white outline-none">
+                </div>
+            </div>
+            <div>
+                <label class="block font-bold text-gray-400 mb-1">Broadcast Update to Customer Feed</label>
+                <textarea id="modalCustomerNote" rows="3" placeholder="Provide technical update (e.g. Backlight IC replaced successfully. Testing display stability...)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white outline-none"></textarea>
+            </div>
+            <div class="border-t border-gray-800 pt-4">
+                <label class="block font-bold text-gray-400 mb-1">Add / Consume Spare on This Job</label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <select id="modalSpareSelect" onchange="updateSpareQtyMax('modalSpareSelect', 'modalSpareQty')" class="flex-1 bg-gray-900 border border-gray-700 rounded-xl p-3 text-white outline-none font-mono">
+                        <option value="">Select a spare / accessory...</option>
+                    </select>
+                    <div class="flex gap-2">
+                        <input type="number" id="modalSpareQty" min="1" value="1" class="w-16 bg-gray-900 border border-gray-700 rounded-xl p-3 text-white outline-none font-mono text-center">
+                        <button type="button" onclick="addSpareToActiveJob()" class="flex-1 sm:flex-none px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl whitespace-nowrap">Deduct</button>
+                    </div>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-1.5">Deducts from the vault immediately and updates this job's parts cost. Includes accessories marked "usable as spare".</p>
+                <p class="text-[10px] text-amber-400 mt-1" id="modalPartsCostReadout"></p>
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeModal()" class="px-4 py-2.5 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700">Cancel</button>
+                <button onclick="saveJobUpdate()" class="px-4 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 shadow-lg shadow-blue-600/20">Save & Broadcast Update</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT CONTROL LOGIC -->
+    <script>
+        /* ================= MOBILE NAVIGATION DRAWER TOGGLE ================= */
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('mobileBackdrop');
+            const icon = document.getElementById('mobileMenuIcon');
+            
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            
+            if (isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            }
+        }
+
+        /* ================= AUTH GUARD & SIGN IN/OUT CONTROLLER ================= */
+        const token = localStorage.getItem('mt_token') || localStorage.getItem('access_token');
+        
+        function updateAuthUI() {
+            const btnText = document.getElementById('authBtnText');
+            const btnIcon = document.getElementById('authBtnIcon');
+            const btn = document.getElementById('authBtn');
+
+            if (token) {
+                btnText.textContent = "Sign Out";
+                btnIcon.className = "fa-solid fa-right-from-bracket";
+                btn.className = "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 transition";
+            } else {
+                btnText.textContent = "Sign In";
+                btnIcon.className = "fa-solid fa-right-to-bracket";
+                btn.className = "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-emerald-400 border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 transition";
+            }
+        }
+
+        function handleAuthAction() {
+            if (token) {
+                logoutUser();
+            } else {
+                window.location.href = '/login/';
+            }
+        }
+
+        function logoutUser() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/';
+        }
+
+        function getCSRFToken() {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, 10) === 'csrftoken=') {
+                        cookieValue = decodeURIComponent(cookie.substring(10));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function asArray(data) {
+            return Array.isArray(data) ? data : (Array.isArray(data?.results) ? data.results : []);
+        }
+
+        /* ================= LIVE DATA CACHES ================= */
+        let jobsCache = [];
+        let sparesCache = [];
+        let accessoriesCache = [];
+        let showcaseCache = [];
+        let serviceTypesCache = [];
+        let currentUserId = null;
+        let activeJobForModal = null;
+
+        /* ================= WINDOW SWITCHING ================= */
+        const WINDOW_ALIASES = { repairs: 'jobs', inventory: 'spares', gallery: 'showcase' };
+        const windowsLoaded = {};
+
+        function switchWindow(windowId) {
+            if (WINDOW_ALIASES[windowId]) windowId = WINDOW_ALIASES[windowId];
+            if (!document.getElementById(`window-${windowId}`)) windowId = 'dashboard';
+
+            document.querySelectorAll('.window-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-gray-800', 'text-white');
+                el.classList.add('text-gray-400');
+            });
+
+            document.getElementById(`window-${windowId}`).classList.add('active');
+            const activeNav = document.getElementById(`nav-${windowId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-gray-800', 'text-white');
+                activeNav.classList.remove('text-gray-400');
+            }
+
+            document.getElementById('windowTitle').textContent = `Window: ${windowId.toUpperCase()} ENGINE`;
+            history.replaceState({ w: windowId }, '', '#' + windowId);
+
+            if (!windowsLoaded[windowId]) {
+                windowsLoaded[windowId] = true;
+                loadWindowData(windowId);
+            }
+
+            // Close mobile menu when nav button clicked
+            if (window.innerWidth < 1024) {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.classList.contains('-translate-x-full')) {
+                    toggleMobileMenu();
+                }
+            }
+        }
+
+        function loadWindowData(windowId) {
+            if (windowId === 'dashboard') loadDashboard();
+            if (windowId === 'accessories') loadAccessories();
+            if (windowId === 'spares') loadSpares();
+            if (windowId === 'jobs') { loadJobs(); }
+            if (windowId === 'showcase') loadShowcase();
+        }
+
+        function syncWorkshopDB() {
+            Object.keys(windowsLoaded).forEach(w => loadWindowData(w));
+            triggerSystemAlert('Workshop DB sync completed across all live windows.', 'info');
+        }
+
+        /* ================= INITIALIZATION & CLOCK ================= */
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+            updateClock();
+            setInterval(updateClock, 1000);
+            loadCurrentUserId();
+
+            const hash = window.location.hash.replace('#', '');
+            const initial = hash || document.body.dataset.initialTab || 'dashboard';
+            switchWindow(initial);
+
+            triggerSystemAlert("MKUMBWA TRONIX Workshop System Loaded Successfully.", "success");
+        });
+
+        function loadCurrentUserId() {
+            if (!token) return;
+            try {
+                const payload = token.split('.')[1];
+                const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+                currentUserId = decoded.user_id || decoded.id || null;
+            } catch (e) { currentUserId = null; }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('liveClock').textContent = now.toLocaleTimeString();
+        }
+
+        function formatCurrency(amount) {
+            return "TZS " + Number(amount || 0).toLocaleString();
+        }
+
+        /* ================= ALERT / TOAST SYSTEM ================= */
+        function triggerSystemAlert(message, type = "info") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const colors = {
+                success: "border-emerald-500 text-emerald-400 bg-gray-900/90",
+                info: "border-blue-500 text-blue-400 bg-gray-900/90",
+                warning: "border-amber-500 text-amber-400 bg-gray-900/90"
+            };
+            toast.className = `p-4 rounded-xl border text-xs font-mono shadow-xl transition-all duration-300 transform translate-x-full pointer-events-auto ${colors[type] || colors.info}`;
+            toast.innerHTML = `<div class="flex items-center gap-3"><i class="fa-solid fa-bell"></i> <span>${message}</span></div>`;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        /* ================================================================
+           1. DASHBOARD — computed client-side from live API data
+           ================================================================ */
+        async function loadDashboard() {
+            try {
+                const [jobsRes, sparesRes, accRes, analyticsRes] = await Promise.all([
+                    apiRequestRaw('/requests/'),
+                    apiRequestRaw('/inventory/spares/'),
+                    apiRequestRaw('/inventory/accessories/'),
+                    apiRequestRaw('/inventory/analytics/'),
+                ]);
+
+                const jobs = jobsRes && jobsRes.ok ? asArray(await jobsRes.json()) : [];
+                const spares = sparesRes && sparesRes.ok ? asArray(await sparesRes.json()) : [];
+                const accessories = accRes && accRes.ok ? asArray(await accRes.json()) : [];
+                const analytics = analyticsRes && analyticsRes.ok ? await analyticsRes.json() : null;
+
+                // Accessories math
+                let totalAccProfit = 0, totalAccBuyCap = 0, totalUnitsSold = 0, totalUnitsRem = 0;
+                accessories.forEach(acc => {
+                    const buy = Number(acc.buy_price || 0);
+                    const sell = Number(acc.price || 0);
+                    totalAccProfit += (sell - buy) * (acc.quantity_taken || 0);
+                    totalAccBuyCap += buy * (acc.quantity_brought || 0);
+                    totalUnitsSold += acc.quantity_taken || 0;
+                    totalUnitsRem += acc.remaining || 0;
+                });
+
+                // Jobs math
+                let totalGrossJobs = 0, totalNetJobsProfit = 0, activeQueueCount = 0;
+                jobs.forEach(job => {
+                    const fee = Number(job.final_price ?? job.quoted_price ?? 0);
+                    const partsCost = Number(job.parts_cost || 0);
+                    totalGrossJobs += fee;
+                    totalNetJobsProfit += (fee - partsCost);
+                    if (job.status !== 'COMPLETED' && job.status !== 'CANCELLED') activeQueueCount++;
+                });
+
+                // Spares capital
+                let totalSpareCap = 0;
+                spares.forEach(sp => { totalSpareCap += Number(sp.unit_cost || 0) * Number(sp.quantity_on_hand || 0); });
+
+                const netWorkshopProfit = totalAccProfit + totalNetJobsProfit;
+
+                document.getElementById('dashTotalProfit').textContent = formatCurrency(netWorkshopProfit);
+                document.getElementById('dashGrossJobs').textContent = formatCurrency(totalGrossJobs);
+                document.getElementById('dashAccProfit').textContent = formatCurrency(totalAccProfit);
+                document.getElementById('dashActiveJobsCount').textContent = `${activeQueueCount} Device(s)`;
+
+                document.getElementById('dashSpareCap').textContent = formatCurrency(totalSpareCap);
+                document.getElementById('dashSpareConsumed').textContent = formatCurrency(analytics?.metrics?.total_spares_consumed_cost || 0);
+                document.getElementById('dashSpareTypes').textContent = `${spares.length} Types`;
+
+                document.getElementById('dashAccBuyCap').textContent = formatCurrency(totalAccBuyCap);
+                document.getElementById('dashAccUnitsSold').textContent = `${totalUnitsSold} Units`;
+                document.getElementById('dashAccUnitsRem').textContent = `${totalUnitsRem} Units`;
+            } catch (err) {
+                console.error("Dashboard load failure:", err);
+                triggerSystemAlert("Could not load dashboard metrics.", "warning");
+            }
+        }
+
+        /* ================================================================
+           2. ACCESSORIES ENGINE
+           ================================================================ */
+        async function loadAccessories() {
+            try {
+                const response = await apiRequestRaw('/inventory/accessories/');
+                if (!response || !response.ok) return;
+                accessoriesCache = asArray(await response.json());
+                renderAccessories();
+                populateRestockDropdown();
+            } catch (err) { console.error(err); }
+        }
+
+        function findExistingAccessoryByName(name) {
+            const norm = name.trim().toLowerCase();
+            return accessoriesCache.find(a => a.name.trim().toLowerCase() === norm);
+        }
+
+        function populateRestockDropdown() {
+            const select = document.getElementById('restockSelect');
+            if (!select) return;
+            const previousValue = select.value;
+            select.innerHTML = '<option value="">Choose an accessory...</option>' +
+                accessoriesCache.map(a => `<option value="${a.id}">${a.name} — ${a.sku || 'no SKU yet'} (${a.remaining} left)</option>`).join('');
+            if ([...select.options].some(o => o.value === previousValue)) select.value = previousValue;
+        }
+
+        async function registerAccessory() {
+            const name = document.getElementById('accName').value.trim();
+            const buy_price = parseFloat(document.getElementById('accBuyPrice').value);
+            const price = parseFloat(document.getElementById('accSellPrice').value);
+            const quantity_brought = parseInt(document.getElementById('accQty').value);
+            const usable_as_spare = document.getElementById('accUsableAsSpare').checked;
+
+            const existing = findExistingAccessoryByName(name);
+            if (existing) {
+                const useRestock = confirm(
+                    `"${existing.name}" already exists (SKU: ${existing.sku || 'pending'}, ${existing.remaining} left).\n\n` +
+                    `OK = Go to Restock and add ${quantity_brought || 'the'} units to it\n` +
+                    `Cancel = Register this as a genuinely separate new item anyway`
+                );
+                if (useRestock) {
+                    document.getElementById('restockSelect').value = existing.id;
+                    if (quantity_brought) document.getElementById('restockQty').value = quantity_brought;
+                    document.getElementById('restockQty').focus();
+                    return;
+                }
+            }
+
+            try {
+                const response = await apiRequestRaw('/inventory/accessories/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({ name, buy_price, price, quantity_brought, quantity_taken: 0, usable_as_spare })
+                });
+                if (response && response.ok) {
+                    const created = await response.json();
+                    document.getElementById('formAddAccessory').reset();
+                    await loadAccessories();
+                    if (usable_as_spare) await loadSpares();
+                    triggerSystemAlert(
+                        usable_as_spare
+                            ? `New Accessory [${name}] added (SKU ${created.sku}) — also registered in the Spares Vault for job use.`
+                            : `New Accessory [${name}] added to showroom (SKU ${created.sku}).`,
+                        "success"
+                    );
+                } else if (response) {
+                    const err = await response.json();
+                    triggerSystemAlert(`Could not add accessory: ${JSON.stringify(err)}`, "warning");
+                }
+            } catch (err) { console.error(err); triggerSystemAlert("Connection error adding accessory.", "warning"); }
+        }
+
+        async function restockAccessory() {
+            const accId = document.getElementById('restockSelect').value;
+            const qty = parseInt(document.getElementById('restockQty').value);
+            if (!accId) { triggerSystemAlert('Select a product to restock.', 'warning'); return; }
+            if (!qty || qty <= 0) { triggerSystemAlert('Enter a valid quantity to add.', 'warning'); return; }
+
+            try {
+                const response = await apiRequestRaw(`/inventory/accessories/${accId}/restock/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({ quantity: qty })
+                });
+                if (response && response.ok) {
+                    const result = await response.json();
+                    document.getElementById('formRestockAccessory').reset();
+                    await loadAccessories();
+                    await loadSpares();
+                    triggerSystemAlert(result.message || 'Restocked successfully.', 'success');
+                } else if (response) {
+                    const err = await response.json();
+                    triggerSystemAlert(`Could not restock: ${JSON.stringify(err)}`, 'warning');
+                }
+            } catch (err) { console.error(err); triggerSystemAlert('Connection error restocking item.', 'warning'); }
+        }
+
+        async function quickSellAccessory(accId) {
+            const acc = accessoriesCache.find(a => a.id === accId);
+            try {
+                const response = await apiRequestRaw(`/inventory/accessories/${accId}/sell-unit/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCSRFToken() }
+                });
+                if (response && response.ok) {
+                    await loadAccessories();
+                    if (acc && acc.usable_as_spare) await loadSpares();
+                    triggerSystemAlert(`Sold 1 unit. Profit updated!`, "success");
+                } else if (response) {
+                    const err = await response.json();
+                    triggerSystemAlert(err.error || "Out of stock.", "warning");
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function renderAccessories() {
+            const tbody = document.getElementById('accessoriesTableBody');
+            if (accessoriesCache.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">No accessories registered yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = '';
+            accessoriesCache.forEach(acc => {
+                const rem = acc.remaining;
+                const totalProfit = (Number(acc.price) - Number(acc.buy_price || 0)) * (acc.quantity_taken || 0);
+                const spareBadge = acc.usable_as_spare
+                    ? `<span class="ml-2 text-[9px] px-1.5 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full align-middle"><i class="fa-solid fa-screwdriver-wrench"></i> Also in Spares Vault</span>`
+                    : '';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-800/40 border-b border-gray-800/50">
+                        <td class="p-3 text-white font-sans font-bold">${acc.name}${spareBadge}<br><span class="text-[10px] text-gray-500 font-mono">${acc.sku || 'pending SKU'}</span></td>
+                        <td class="p-3">
+                            <span class="text-gray-400">B: ${formatCurrency(acc.buy_price)}</span><br>
+                            <span class="text-emerald-400">S: ${formatCurrency(acc.price)}</span>
+                        </td>
+                        <td class="p-3 text-gray-300">${acc.quantity_brought}</td>
+                        <td class="p-3 text-blue-400 font-bold">${rem}</td>
+                        <td class="p-3 text-amber-400 font-bold">${acc.quantity_taken}</td>
+                        <td class="p-3 text-emerald-400 font-bold">${formatCurrency(totalProfit)}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="quickSellAccessory(${acc.id})" ${rem <= 0 ? 'disabled style="opacity:.3;"' : ''} class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-600/40">
+                                +1 Sold
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        /* ================================================================
+           3. SPARE PARTS VAULT ENGINE
+           ================================================================ */
+        async function loadSpares() {
+            try {
+                const response = await apiRequestRaw('/inventory/spares/');
+                if (!response || !response.ok) return;
+                sparesCache = asArray(await response.json());
+                renderSpares();
+                populateJobSpareDropdown();
+            } catch (err) { console.error(err); }
+        }
+
+        async function registerSpare() {
+            const name = document.getElementById('spareName').value;
+            const sku = document.getElementById('spareSku').value.trim().toUpperCase();
+            const condition = document.getElementById('spareCondition').value;
+            const unit_cost = parseFloat(document.getElementById('spareCost').value);
+            const retail_price = parseFloat(document.getElementById('spareRetail').value);
+            const quantity_on_hand = parseInt(document.getElementById('spareQty').value);
+
+            try {
+                const response = await apiRequestRaw('/inventory/spares/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({ name, sku, condition, category: 'OTHER', unit_cost, retail_price, quantity_on_hand })
+                });
+                if (response && response.ok) {
+                    document.getElementById('formAddSpare').reset();
+                    await loadSpares();
+                    triggerSystemAlert(`Spare Component [${name}] cataloged.`, "success");
+                } else if (response) {
+                    const err = await response.json();
+                    triggerSystemAlert(`Could not add spare: ${JSON.stringify(err)}`, "warning");
+                }
+            } catch (err) { console.error(err); triggerSystemAlert("Connection error adding spare.", "warning"); }
+        }
+
+        async function deleteSpare(sku, isAccessorySourced = false) {
+            const confirmMsg = isAccessorySourced
+                ? `"${sku}" is synced from an Accessory. Removing it here only deletes the Spares Vault mirror — the Accessory itself stays untouched and will re-sync back into the vault next time it's edited or sold. To stop it being usable as a spare permanently, uncheck "usable as spare" on the Accessory instead. Remove the vault entry anyway?`
+                : `Remove spare ${sku} from the vault?`;
+            if (!confirm(confirmMsg)) return;
+            try {
+                const response = await apiRequestRaw(`/inventory/spares/${sku}/`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRFToken': getCSRFToken() }
+                });
+                if (response && response.ok) { await loadSpares(); triggerSystemAlert(`Spare ${sku} removed.`, 'info'); }
+            } catch (err) { console.error(err); }
+        }
+
+        function renderSpares() {
+            const tbody = document.getElementById('sparesTableBody');
+            if (sparesCache.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">No spares cataloged yet.</td></tr>`;
+                return;
+            }
+            const conditionColors = {
+                NEW: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+                USED: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+                REFURB: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+            };
+            tbody.innerHTML = '';
+            sparesCache.forEach(sp => {
+                const totalVal = Number(sp.unit_cost) * Number(sp.quantity_on_hand);
+                const cond = sp.condition || 'NEW';
+                const isAccessorySourced = sp.category === 'ACCESSORY';
+                const sourceBadge = isAccessorySourced
+                    ? `<span class="ml-1 text-[9px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full align-middle"><i class="fa-solid fa-tags"></i> From Accessories</span>`
+                    : '';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-800/40 border-b border-gray-800/50">
+                        <td class="p-3 text-white font-sans font-bold">${sp.name}${sourceBadge}<br><span class="text-[10px] text-gray-500">${sp.sku}</span></td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 text-[10px] rounded-full border ${conditionColors[cond] || conditionColors.NEW}">${cond}</span>
+                        </td>
+                        <td class="p-3 text-gray-300">${formatCurrency(sp.unit_cost)}</td>
+                        <td class="p-3 text-amber-400 font-bold">${sp.quantity_on_hand} units</td>
+                        <td class="p-3 text-emerald-400 font-bold">${formatCurrency(totalVal)}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteSpare('${sp.sku}', ${isAccessorySourced})" class="px-2.5 py-1 bg-red-600/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-600/40">
+                                Remove
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function populateJobSpareDropdown() {
+            [
+                { selectId: 'jobSpareSelect', qtyId: 'jobSpareQty' },
+                { selectId: 'modalSpareSelect', qtyId: 'modalSpareQty' },
+            ].forEach(({ selectId, qtyId }) => {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                const previousValue = select.value;
+                select.innerHTML = '<option value="">None / Labor Only</option>';
+                sparesCache.forEach(sp => {
+                    if (sp.quantity_on_hand > 0) {
+                        const sourceTag = sp.category === 'ACCESSORY' ? ' [Accessory]' : '';
+                        select.innerHTML += `<option value="${sp.sku}" data-max="${sp.quantity_on_hand}">${sp.name}${sourceTag} (${sp.quantity_on_hand} available) - Cost: TZS ${sp.unit_cost}</option>`;
+                    }
+                });
+                if ([...select.options].some(o => o.value === previousValue)) select.value = previousValue;
+                updateSpareQtyMax(selectId, qtyId);
+            });
+        }
+
+        function updateSpareQtyMax(selectId = 'jobSpareSelect', qtyId = 'jobSpareQty') {
+            const select = document.getElementById(selectId);
+            const qtyInput = document.getElementById(qtyId);
+            if (!select || !qtyInput) return;
+            const selectedOption = select.options[select.selectedIndex];
+            const max = selectedOption ? parseInt(selectedOption.dataset.max || '1') : 1;
+            qtyInput.max = max;
+            if (parseInt(qtyInput.value) > max) qtyInput.value = max;
+            if (!select.value) { qtyInput.value = 1; qtyInput.removeAttribute('max'); }
+        }
+
+        async function consumeSpareForTicket(ticketId, sku, quantity) {
+            if (!sku) return { ok: true, skipped: true };
+            const response = await apiRequestRaw('/inventory/consume/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ ticket_id: ticketId, sku, quantity })
+            });
+            if (!response || !response.ok) {
+                const err = response ? await response.json() : {};
+                return { ok: false, error: err.error || JSON.stringify(err) };
+            }
+            return { ok: true };
+        }
+
+        /* ================================================================
+           4. JOBS & REPAIR ACCOUNTING ENGINE
+           ================================================================ */
+        async function loadJobs() {
+            try {
+                const response = await apiRequestRaw('/requests/');
+                if (!response || !response.ok) return;
+                jobsCache = asArray(await response.json());
+                renderJobs();
+            } catch (err) { console.error(err); }
+        }
+
+        async function createJobTicket() {
+            const customer_name = document.getElementById('jobCustName').value;
+            const customer_phone = document.getElementById('jobCustPhone').value;
+            const device_type = document.getElementById('jobDeviceType').value;
+            const device_model = document.getElementById('jobDeviceModel').value;
+            const serviceDesc = document.getElementById('jobServiceDesc').value.trim();
+            const spareSku = document.getElementById('jobSpareSelect').value;
+            const spareQty = parseInt(document.getElementById('jobSpareQty').value) || 1;
+            const totalCharge = parseFloat(document.getElementById('jobTotalCharge').value);
+            const status = document.getElementById('jobStatus').value;
+
+            if (!serviceDesc) {
+                triggerSystemAlert('Please describe the service/repair needed.', 'warning');
+                return;
+            }
+
+            try {
+                const response = await apiRequestRaw('/requests/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({
+                        customer_name, customer_phone, device_type, device_model,
+                        quoted_price: totalCharge, status,
+                        customer_notes: serviceDesc
+                    })
+                });
+
+                if (!response || !response.ok) {
+                    const err = response ? await response.json() : {};
+                    triggerSystemAlert(`Could not register job: ${JSON.stringify(err)}`, "warning");
+                    return;
+                }
+
+                const newJob = await response.json();
+
+                if (spareSku) {
+                    const result = await consumeSpareForTicket(newJob.id, spareSku, spareQty);
+                    if (!result.ok) {
+                        triggerSystemAlert(`Job SR-${newJob.id} created, but spare deduction failed: ${result.error}. Allocate it manually from the Spares Vault.`, 'warning');
+                    }
+                }
+
+                document.getElementById('formAddJob').reset();
+                await Promise.all([loadJobs(), loadSpares(), loadAccessories()]);
+                triggerSystemAlert(`Job Ticket #SR-${newJob.id} registered for ${customer_name}.`, "success");
+            } catch (err) {
+                console.error(err);
+                triggerSystemAlert("Connection error registering job.", "warning");
+            }
+        }
+
+        async function claimJob(jobId) {
+            if (!confirm(`Claim Job SR-${jobId}? It will be assigned to you.`)) return;
+            try {
+                const response = await apiRequestRaw(`/tech/claim-job/${jobId}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCSRFToken() }
+                });
+                if (response && response.ok) {
+                    await loadJobs();
+                    triggerSystemAlert(`Job SR-${jobId} claimed.`, 'success');
+                } else if (response) {
+                    const err = await response.json();
+                    triggerSystemAlert(err.error || 'Could not claim this job.', 'warning');
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function renderJobs() {
+            const tbody = document.getElementById('jobsTableBody');
+            if (jobsCache.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">No jobs registered yet.</td></tr>`;
+                return;
+            }
+            const statusColors = {
+                PENDING: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+                ASSIGNED: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+                PROCESSING: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+                AWAITING_PARTS: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+                TESTING: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20",
+                READY: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+                COMPLETED: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+                CANCELLED: "bg-red-500/10 text-red-400 border-red-500/20",
+            };
+
+            tbody.innerHTML = '';
+            jobsCache.forEach(job => {
+                const fee = Number(job.final_price ?? job.quoted_price ?? 0);
+                const partsCost = Number(job.parts_cost || 0);
+                const netProfit = fee - partsCost;
+                const clientName = job.customer ? `${job.customer.first_name} ${job.customer.last_name}` : (job.customer_name || 'Walk-In');
+                const techBlock = job.technician
+                    ? `<span class="text-emerald-400"><i class="fa-solid fa-user-check"></i> ${job.technician.first_name || job.technician.username}</span>`
+                    : `<button onclick="claimJob(${job.id})" class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-600/40">Claim</button>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-800/40 border-b border-gray-800/50">
+                        <td class="p-3 text-purple-400 font-bold">#SR-${job.id}</td>
+                        <td class="p-3">
+                            <span class="text-white font-sans font-bold block">${clientName}</span>
+                            <span class="text-gray-400 text-[11px]">${job.device_type} — ${job.device_model}</span>
+                        </td>
+                        <td class="p-3 text-gray-200">${formatCurrency(fee)}</td>
+                        <td class="p-3 text-red-400">-${formatCurrency(partsCost)}</td>
+                        <td class="p-3 text-emerald-400 font-bold">${formatCurrency(netProfit)}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-1 text-[10px] rounded-full border ${statusColors[job.status] || statusColors.PENDING} font-bold">${job.status}</span>
+                        </td>
+                        <td class="p-3">${techBlock}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="openModal(${job.id})" class="px-3 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600/40">
+                                Update / Broadcast
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        /* ================= MODAL UPDATE CONTROLLER ================= */
+        function openModal(jobId) {
+            const job = jobsCache.find(j => j.id === jobId);
+            if (!job) return;
+            activeJobForModal = jobId;
+            const clientName = job.customer ? `${job.customer.first_name} ${job.customer.last_name}` : (job.customer_name || 'Walk-In');
+            document.getElementById('modalJobRef').textContent = `Job Update #SR-${job.id} (${clientName})`;
+            document.getElementById('modalJobStatus').value = job.status;
+            document.getElementById('modalQuoted').value = job.quoted_price || '';
+            document.getElementById('modalFinal').value = job.final_price || '';
+            document.getElementById('modalCustomerNote').value = '';
+            document.getElementById('modalSpareSelect').value = '';
+            document.getElementById('modalSpareQty').value = 1;
+            populateJobSpareDropdown();
+            updateModalPartsCostReadout(job);
+            document.getElementById('updateJobModal').classList.remove('hidden');
+        }
+
+        function updateModalPartsCostReadout(job) {
+            const readout = document.getElementById('modalPartsCostReadout');
+            if (!readout) return;
+            readout.textContent = `Parts consumed on this job so far: ${formatCurrency(job.parts_cost || 0)}`;
+        }
+
+        async function addSpareToActiveJob() {
+            if (!activeJobForModal) return;
+            const sku = document.getElementById('modalSpareSelect').value;
+            const qty = parseInt(document.getElementById('modalSpareQty').value) || 1;
+            if (!sku) {
+                triggerSystemAlert('Select a spare or accessory first.', 'warning');
+                return;
+            }
+
+            const result = await consumeSpareForTicket(activeJobForModal, sku, qty);
+            if (result.ok) {
+                document.getElementById('modalSpareSelect').value = '';
+                document.getElementById('modalSpareQty').value = 1;
+                await Promise.all([loadSpares(), loadAccessories(), loadJobs()]);
+                const updatedJob = jobsCache.find(j => j.id === activeJobForModal);
+                if (updatedJob) updateModalPartsCostReadout(updatedJob);
+                triggerSystemAlert(`Deducted ${qty}x from the vault and applied to SR-${activeJobForModal}.`, 'success');
+            } else {
+                triggerSystemAlert(`Could not deduct: ${result.error}`, 'warning');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('updateJobModal').classList.add('hidden');
+        }
+
+        async function saveJobUpdate() {
+            if (!activeJobForModal) return;
+            const newStatus = document.getElementById('modalJobStatus').value;
+            const note = document.getElementById('modalCustomerNote').value;
+            const quoted = document.getElementById('modalQuoted').value;
+            const final = document.getElementById('modalFinal').value;
+
+            try {
+                if (quoted || final) {
+                    const patchBody = {};
+                    if (quoted) patchBody.quoted_price = quoted;
+                    if (final) patchBody.final_price = final;
+                    await apiRequestRaw(`/requests/${activeJobForModal}/`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                        body: JSON.stringify(patchBody)
+                    });
+                }
+
+                const response = await apiRequestRaw(`/requests/${activeJobForModal}/update_status/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({ status: newStatus, note })
+                });
+
+                if (response && response.ok) {
+                    await loadJobs();
+                    closeModal();
+                    triggerSystemAlert(`Job updated to ${newStatus} and synced to website.`, "info");
+                } else if (response) {
+                    const err = await response.json();
+                    triggerSystemAlert(`Could not update job: ${JSON.stringify(err)}`, "warning");
+                }
+            } catch (err) {
+                console.error(err);
+                triggerSystemAlert("Connection error updating job.", "warning");
+            }
+        }
+
+        /* ================================================================
+           5. CUSTOMER SHOWCASE & NEWS PUBLISHER ENGINE
+           ================================================================ */
+        async function loadShowcase() {
+            try {
+                const response = await apiRequestRaw('/updates/');
+                if (!response || !response.ok) return;
+                showcaseCache = asArray(await response.json());
+                renderShowcase();
+            } catch (err) { console.error(err); }
+        }
+
+        async function publishShowcasePost() {
+            const title = document.getElementById('postTitle').value;
+            const post_type = document.getElementById('postCategory').value;
+            const content = document.getElementById('postContent').value;
+
+            try {
+                const response = await apiRequestRaw('/updates/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({ title, post_type, content, is_published: true })
+                });
+                if (response && response.ok) {
+                    document.getElementById('formAddPost').reset();
+                    await loadShowcase();
+                    triggerSystemAlert("Published live news post to customer web homepage!", "success");
+                } else if (response) {
+                    const err = await response.json();
+                    triggerSystemAlert(`Could not publish: ${JSON.stringify(err)}`, "warning");
+                }
+            } catch (err) { console.error(err); triggerSystemAlert("Connection error publishing post.", "warning"); }
+        }
+
+        function renderShowcase() {
+            const container = document.getElementById('showcaseFeed');
+            if (showcaseCache.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 col-span-2">No posts published yet.</p>`;
+                return;
+            }
+            const categoryLabels = { COMPLETED_JOB: 'REPAIR_GALLERY', NEWS: 'WORKSHOP_NEWS', TIP: 'TECH_TIP', PROMO: 'PROMOTION' };
+            container.innerHTML = '';
+            showcaseCache.forEach(post => {
+                container.innerHTML += `
+                    <div class="bg-gray-900/80 border border-gray-800 p-4 rounded-xl space-y-2">
+                        <div class="flex justify-between items-center text-[10px] font-mono">
+                            <span class="px-2 py-0.5 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-full font-bold">${categoryLabels[post.post_type] || post.post_type}</span>
+                            <span class="text-gray-500">${new Date(post.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <h4 class="font-bold text-white text-sm font-sans">${post.title}</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed font-sans">${post.content}</p>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

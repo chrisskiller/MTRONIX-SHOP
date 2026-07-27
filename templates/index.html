@@ -1,0 +1,1198 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MKUMBWA TRONIX — Professional Electronics Repair & IT Services Dar es Salaam</title>
+<meta name="description" content="Professional electronics repair, laptop repair, phone repair, PS5 repair, OS installation and IT services in Dar es Salaam, Tanzania. Walk in or book online.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0d1117;--ink2:#1a2332;--slate:#2d3748;
+  --blue:#1d6ef5;--blue-h:#1558d6;--blue-s:#e8f0fe;--blue-m:#c7d9fd;
+  --amber:#d97706;--amber-s:#fffbeb;--amber-b:#fbbf24;
+  --teal:#0d9488;--teal-s:#f0fdfa;
+  --green:#16a34a;--green-s:#f0fdf4;
+  --red:#dc2626;
+  --surface:#f5f7fa;--surface2:#edf0f5;
+  --white:#fff;--border:#dde2ea;--border2:#c8d0dc;
+  --text:#0d1117;--text2:#3d4a5c;--text3:#6b7a90;--text4:#96a3b5;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 4px 16px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
+  --shadow-lg:0 16px 40px rgba(0,0,0,0.1),0 4px 12px rgba(0,0,0,0.06);
+}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:105px}
+
+/* ANNOUNCEMENT BAR */
+.abar{position:fixed;top:0;left:0;right:0;height:40px;background:var(--ink);color:rgba(255,255,255,0.8);text-align:center;font-size:0.74rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;z-index:101}
+
+/* NAV */
+nav{position:fixed;top:40px;left:0;right:0;z-index:100;height:65px;display:flex;align-items:center;justify-style:space-between;justify-content:space-between;padding:0 2.5rem;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.logo-wrap{display:flex;align-items:center;gap:0.75rem}
+.logo-icon{width:38px;height:38px;background:var(--ink);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.logo-text{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:var(--ink);letter-spacing:-0.01em;line-height:1.2}
+.logo-text span{color:var(--blue)}
+.logo-sub{font-size:0.58rem;color:var(--text4);letter-spacing:0.09em;text-transform:uppercase;display:block}
+.nav-links{display:flex;gap:0.15rem;list-style:none}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:0.84rem;font-weight:500;padding:0.4rem 0.9rem;border-radius:7px;transition:all 0.15s}
+.nav-links a:hover{background:var(--surface);color:var(--ink)}
+.nav-right{display:flex;gap:0.6rem;align-items:center}
+.mobile-auth-link{display:none}
+
+/* BUTTONS */
+.btn{padding:0.48rem 1.1rem;border-radius:8px;font-size:0.84rem;font-weight:500;cursor:pointer;text-decoration:none;transition:all 0.15s;border:none;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.35rem;white-space:nowrap}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{background:var(--surface);color:var(--ink)}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 1px 4px rgba(29,110,245,0.3)}
+.btn-primary:hover{background:var(--blue-h)}
+.btn-ink{background:var(--ink);color:#fff}
+.btn-ink:hover{background:var(--ink2)}
+.btn-amber{background:var(--amber-b);color:var(--ink)}
+.btn-amber:hover{opacity:0.9}
+.btn-lg{padding:0.75rem 1.65rem;font-size:0.95rem}
+.btn-xl{padding:0.9rem 2rem;font-size:1rem}
+
+/* PROFILE DROPDOWN SYSTEM */
+.profile-dropdown {position:relative;display:inline-block}
+.profile-trigger {display:flex;align-items:center;gap:0.55rem;padding:0.35rem 0.75rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:0.84rem;font-weight:500;color:var(--ink);transition:all 0.15s;user-select:none}
+.profile-trigger:hover {background:var(--surface2)}
+.profile-nav-img {width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--border2);border:1.5px solid var(--white);box-shadow:0 0 0 1px var(--border)}
+.profile-menu {position:absolute;top:calc(100% + 5px);right:0;width:210px;background:var(--white);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);display:none;flex-direction:column;overflow:hidden;z-index:210}
+.profile-menu.active {display:flex}
+.profile-menu a, .profile-menu button {padding:0.7rem 1rem;font-size:0.82rem;color:var(--text2);text-decoration:none;text-align:left;background:transparent;border:none;width:100%;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;display:flex;align-items:center;gap:0.5rem}
+.profile-menu a:hover, .profile-menu button:hover {background:var(--surface);color:var(--ink)}
+.profile-menu .menu-divider {height:1px;background:var(--border);margin:0}
+
+/* IMAGE UPLOAD UI GENERATORS */
+.avatar-upload-container {display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;background:var(--surface);padding:0.75rem;border-radius:10px;border:1px dashed var(--border2)}
+.avatar-preview {width:55px;height:55px;border-radius:50%;object-fit:cover;background:var(--border2);border:2px solid var(--white);box-shadow:var(--shadow-sm)}
+.file-input-wrapper {position:relative;overflow:hidden;display:inline-block}
+.file-input-wrapper input[type=file] {position:absolute;left:0;top:0;opacity:0;font-size:100px;cursor:pointer}
+
+/* HERO SECTION */
+.hero{background:linear-gradient(180deg, var(--surface) 0%, #fff 100%);padding:5rem 2.5rem 4rem 2.5rem}
+.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.2fr 0.8fr;gap:4rem;align-items:center}
+.hero-badge{display:inline-block;padding:0.35rem 0.8rem;background:var(--blue-s);color:var(--blue);font-size:0.78rem;font-weight:600;border-radius:6px;margin-bottom:1.5rem;text-transform:uppercase;letter-spacing:0.03em}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:3.5rem;font-weight:700;color:var(--ink);line-height:1.08;letter-spacing:-0.03em;margin-bottom:1.5rem}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.hero-desc{font-size:1.05rem;color:var(--text2);line-height:1.6;margin-bottom:2rem;max-width:480px}
+.hero-panel{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.5rem;box-shadow:var(--shadow-lg)}
+.panel-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;border-bottom:1px solid var(--surface2);padding-bottom:0.75rem}
+.panel-title{font-size:0.84rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em}
+.panel-live{font-size:0.75rem;font-weight:600;color:var(--green);display:flex;align-items:center;gap:0.35rem}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 1.8s infinite}
+@keyframes pulse{0%{opacity:0.4}50%{opacity:1}100%{opacity:0.4}}
+
+.ritem{display:flex;align-items:center;gap:1rem;padding:0.85rem;background:var(--surface);border-radius:10px;margin-bottom:0.75rem;border:1px solid var(--border)}
+.ricon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.ri-b{background:var(--blue-s)}
+.rinfo{flex-grow:1}
+.rname{font-size:0.84rem;font-weight:600;color:var(--ink)}
+.rsub{font-size:0.74rem;color:var(--text3);margin-top:0.1rem}
+.rbadge{padding:0.25rem 0.55rem;border-radius:5px;font-size:0.7rem;font-weight:600;text-transform:uppercase}
+.rb-prog{background:var(--amber-s);color:var(--amber)}
+.pstats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--surface2)}
+.pstat{text-align:center;background:var(--surface);padding:0.75rem;border-radius:10px}
+.pstat-n{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:var(--ink)}
+.pstat-l{font-size:0.72rem;color:var(--text3);text-transform:uppercase;margin-top:0.15rem}
+
+/* MARQUEE */
+.marquee-wrap{background:var(--ink);padding:0.85rem 0;overflow:hidden;border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1)}
+.marquee{display:flex;white-space:nowrap;gap:3rem;animation:scroll 25s linear infinite;width:max-content}
+.mitem{color:rgba(255,255,255,0.8);font-family:'Space Grotesk',sans-serif;font-size:0.84rem;font-weight:600;letter-spacing:0.08em;display:flex;align-items:center;gap:0.6rem}
+.mdot{width:5px;height:5px;background:var(--blue);border-radius:50%}
+@keyframes scroll{0%{transform:translateX(0%)}100%{transform:translateX(-50%)}}
+
+/* STRUCTURE SECTIONS */
+.sec{max-width:1200px;margin:0 auto;padding:5rem 2.5rem}
+.svc-bg{background:var(--surface)}
+.sec-hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3.5rem;gap:2rem}
+.eyebrow{font-size:0.78rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:700;color:var(--ink);letter-spacing:-0.02em}
+.sec-sub{max-width:460px;font-size:0.92rem;color:var(--text2);line-height:1.6}
+
+/* GRID LAYOUTS */
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem}
+.svc-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:2rem;box-shadow:var(--shadow-sm);transition:all 0.2s;display:flex;flex-direction:column}
+.svc-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--border2)}
+.svc-num{font-family:'Space Grotesk',sans-serif;font-size:0.7rem;font-weight:600;color:var(--text4);letter-spacing:0.05em;margin-bottom:1.25rem}
+.svc-icon{font-size:2rem;margin-bottom:1.25rem;display:block}
+.svc-card h3{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;color:var(--ink);margin-bottom:0.65rem}
+.svc-card p{font-size:0.88rem;color:var(--text2);line-height:1.55;flex-grow:1;margin-bottom:1.5rem}
+.svc-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--surface);padding-top:1rem;margin-top:auto}
+.svc-tag{font-size:0.72rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:4px;text-transform:uppercase}
+.t-hw{background:var(--blue-s);color:var(--blue)}
+.t-sw{background:var(--teal-s);color:var(--teal)}
+.t-dg{background:var(--amber-s);color:var(--amber)}
+.svc-arr{font-size:1.1rem;color:var(--text4);transition:transform 0.15s}
+.svc-card:hover .svc-arr{transform:translateX(4px);color:var(--blue)}
+
+/* REPAIR GALLERY SHOWCASE */
+.gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+.gcard{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.gcard-images{display:flex;position:relative;background:var(--ink);height:220px;align-items:center;overflow:hidden}
+.gcard-img{width:50%;height:100%;position:relative}
+.gcard-img img{width:100%;height:100%;object-fit:cover;opacity:0.9}
+.img-label{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,0.6);color:#fff;font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:4px;backdrop-filter:blur(4px);text-transform:uppercase;letter-spacing:0.05em}
+.gcard-img:last-child .img-label{left:auto;right:10px}
+.gcard-divider{width:2px;height:100%;background:var(--white);z-index:2;position:relative}
+.gcard-featured{position:absolute;top:12px;left:12px;background:var(--green);color:#fff;font-size:0.68rem;font-weight:600;padding:0.25rem 0.55rem;border-radius:5px;z-index:5;text-transform:uppercase}
+.gcard-body{padding:1.5rem}
+.gcard-cat{font-size:0.74rem;font-weight:600;color:var(--blue);text-transform:uppercase;margin-bottom:0.4rem}
+.gcard-title{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:0.4rem}
+.gcard-device{font-size:0.84rem;color:var(--text2);line-height:1.5}
+
+/* TRACK REPAIR BAR */
+.track-bg{background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:4rem 2.5rem}
+.track-inner{max-width:650px;margin:0 auto;text-align:center}
+.track-form{display:flex;gap:0.5rem;margin-top:1.5rem;margin-bottom:1.5rem;background:var(--white);padding:0.4rem;border-radius:12px;box-shadow:var(--shadow);border:1px solid var(--border2)}
+.track-input{flex-grow:1;border:none;padding:0 1rem;font-size:0.95rem;font-family:'Inter',sans-serif;outline:none;background:transparent;color:var(--ink)}
+.track-result{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:left;box-shadow:var(--shadow-sm);display:none}
+.track-result.show{display:block}
+.sbadge{display:inline-block;padding:0.25rem 0.6rem;border-radius:5px;font-size:0.72rem;font-weight:600;text-transform:uppercase;margin-bottom:0.75rem}
+.sb-pr{background:var(--amber-s);color:var(--amber)}
+.sb-cm{background:var(--green-s);color:var(--green)}
+.track-dev{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;color:var(--ink)}
+.track-meta{font-size:0.84rem;color:var(--text2);margin-top:0.35rem;line-height:1.5}
+.track-phone-input{flex-grow:1;border:none;padding:0 1rem;font-size:0.95rem;font-family:'Inter',sans-serif;outline:none;background:transparent;color:var(--ink);border-left:1px solid var(--border2)}
+.track-technician{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;color:var(--text2)}
+.track-chat-toggle{background:var(--blue-s);color:var(--blue);border:none;padding:0.5rem 1rem;border-radius:8px;font-weight:600;font-size:0.8rem;cursor:pointer}
+.track-chat-toggle:hover{background:var(--blue-m)}
+.guest-chat-box{display:none;margin-top:1rem;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface2)}
+.guest-chat-box.show{display:block}
+.guest-chat-messages{max-height:260px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.6rem}
+.guest-chat-bubble{max-width:80%;padding:0.55rem 0.8rem;border-radius:10px;font-size:0.82rem;line-height:1.4}
+.guest-chat-bubble.mine{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:3px}
+.guest-chat-bubble.theirs{align-self:flex-start;background:var(--white);border:1px solid var(--border);border-bottom-left-radius:3px}
+.guest-chat-sender{display:block;font-size:0.68rem;font-weight:700;opacity:0.8;margin-bottom:2px}
+.guest-chat-input-row{display:flex;gap:0.5rem;padding:0.75rem;border-top:1px solid var(--border);background:var(--white)}
+.guest-chat-input-row input{flex-grow:1;border:1px solid var(--border2);border-radius:20px;padding:0.5rem 1rem;font-size:0.85rem;outline:none}
+.guest-chat-input-row button{background:var(--blue);color:#fff;border:none;width:38px;height:38px;border-radius:50%;cursor:pointer;flex-shrink:0}
+.guest-chat-input-row button:hover{background:var(--blue-h)}
+
+/* PRODUCTS SHOP GRID */
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem}
+.pcard{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm);transition:border 0.15s}
+.pcard:hover{border-color:var(--border2)}
+.pcard-img{height:160px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:3.5rem;border-bottom:1px solid var(--border)}
+.pcard-body{padding:1.25rem}
+.pcard-name{font-size:0.88rem;font-weight:600;color:var(--ink);margin-bottom:0.4rem}
+.pcard-price{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--blue);margin-bottom:0.6rem}
+.pcard-stock{font-size:0.72rem;color:var(--green);font-weight:500;display:flex;align-items:center;gap:0.3rem}
+.pcard-stock::before{content:'';width:5px;height:5px;background:var(--green);border-radius:50%;display:inline-block}
+
+/* FOOTER CONTACT ZONE */
+.contact-bg{background:var(--ink);color:#fff;border-top:4px solid var(--blue)}
+.contact-grid{display:grid;grid-template-columns:0.9fr 1.1fr;gap:4rem;align-items:start}
+.cinfo{padding-right:1rem}
+.citem{display:flex;gap:1rem;align-items:center}
+.cicon{width:40px;height:40px;background:rgba(255,255,255,0.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.cl{font-size:0.72rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.04rem}
+.cv{font-size:0.9rem;color:rgba(255,255,255,0.9);font-weight:500;margin-top:0.15rem}
+.cform{background:var(--white);border-radius:16px;padding:2.5rem;box-shadow:var(--shadow-lg)}
+.cform-title{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:1.5rem;letter-spacing:-0.01em}
+
+/* CORE CONTROL INFRASTRUCTURE */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,17,23,0.4);backdrop-filter:blur(5px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;padding:1rem}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:500px;padding:2rem;box-shadow:var(--shadow-lg);border:1px solid var(--border);transform:scale(0.96);transition:transform 0.2s;max-height:90vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;color:var(--ink)}
+.modal-close{background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--text4);transition:color 0.15s}
+.modal-close:hover{color:var(--ink)}
+
+/* INPUT LAYOUT CONFIGURATIONS */
+.fg{margin-bottom:1.15rem;display:flex;flex-direction:column;gap:0.45rem}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fl{font-size:0.78rem;font-weight:600;color:var(--text2);letter-spacing:0.01em}
+.fi{width:100%;padding:0.65rem 0.9rem;border-radius:8px;border:1px solid var(--border2);font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--ink);outline:none;transition:all 0.15s;background:var(--white)}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-s)}
+textarea.fi{min-height:90px;resize:vertical}
+
+/* TOAST BAR */
+.toast{position:fixed;bottom:25px;right:25px;background:var(--ink);color:#fff;padding:0.75rem 1.25rem;border-radius:10px;font-size:0.84rem;font-weight:500;box-shadow:var(--shadow-lg);z-index:300;transform:translateY(40px);opacity:0;pointer-events:none;transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);display:flex;align-items:center;gap:0.5rem;border-left:4px solid var(--blue)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-left-color:var(--green)}
+.toast.error{border-left-color:var(--red)}
+.nav-toggle{display:none;background:none;border:none;font-size:1.3rem;color:var(--ink);cursor:pointer;padding:0.4rem}
+
+/* RESPONSIVE & MOBILE REFINEMENTS */
+@media(max-width:992px){
+  .hero-inner{grid-template-columns:1fr;gap:2.5rem}
+  .hero h1{font-size:2.6rem}
+  .contact-grid{grid-template-columns:1fr;gap:2rem}
+  .gallery-grid{grid-template-columns:1fr}
+  .sec-hdr{flex-direction:column;align-items:flex-start;gap:0.5rem}
+}
+
+@media(max-width:860px){
+  body{padding-top:65px}
+  .abar{display:none}
+  nav{top:0;padding:0 1rem}
+  .logo-sub{display:none}
+  .nav-links{display:none;position:absolute;top:65px;left:0;right:0;flex-direction:column;gap:0;background:#fff;padding:0.5rem 0;box-shadow:var(--shadow-sm);border-bottom:1px solid var(--border)}
+  .nav-links.open{display:flex}
+  .nav-links a{padding:0.85rem 1.5rem;width:100%;box-sizing:border-box}
+  .mobile-auth-link{display:block;border-top:1px solid var(--border)}
+  .nav-toggle{display:block}
+  .nav-right .btn{padding:0.45rem 0.75rem;font-size:0.78rem}
+}
+
+@media(max-width:580px){
+  .fr{grid-template-columns:1fr}
+  .track-form{flex-direction:column;padding:0.75rem}
+  .track-phone-input{border-left:none;border-top:1px solid var(--border2);padding-top:0.5rem;margin-top:0.25rem}
+  .hero{padding:3rem 1.25rem 2.5rem}
+  .sec{padding:3rem 1.25rem}
+  .hero h1{font-size:2.1rem}
+  .cform{padding:1.5rem}
+}
+
+@media(max-width:480px){
+  .nav-right{gap:0.35rem}
+  .nav-right .btn-ghost{display:inline-flex;padding:0.4rem 0.6rem;font-size:0.75rem}
+  .logo-text{font-size:0.9rem}
+}
+</style>
+</head>
+<body>
+
+<div class="abar">
+  <p>Open today · Mon–Sat 8am–6pm · <strong>Walk-ins welcome</strong> · Dar es Salaam</p>
+</div>
+
+<nav>
+  <div class="logo-wrap">
+    <div class="logo-icon" style="color: #fff;">⚡</div>
+    <div><div class="logo-text">MKUMBWA <span>TRONIX</span></div><span class="logo-sub">Electronics Repair & IT Services</span></div>
+  </div>
+  <ul class="nav-links" id="navLinksList">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#track">Track repair</a></li>
+    <li><a href="#products">Accessories</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li class="mobile-auth-link" id="mobileAuthLinkItem">
+      <a href="#" onclick="openModal('loginModal')">Sign in / Account</a>
+    </li>
+  </ul>
+  <button class="nav-toggle" onclick="toggleMobileNav()" aria-label="Menu">☰</button>
+  <div class="nav-right" id="navbarAuthSection">
+    <a href="#" class="btn btn-ghost" onclick="openModal('loginModal')">Sign in</a>
+    <a href="#" class="btn btn-primary" onclick="openModal('bookModal')">Book a repair</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">Dar es Salaam's trusted repair center</div>
+      <h1>Your device<br>deserves the<br><em>best care.</em></h1>
+      <p class="hero-desc">Professional electronics repair with transparent pricing and real-time portal tracking.</p>
+      <div class="hero-cta">
+        <a href="#" class="btn btn-primary btn-xl" onclick="openModal('bookModal')">📋 Book a service</a>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="panel-hdr"><div class="panel-title">Workshop diagnostics</div><div class="panel-live"><span class="live-dot"></span> Live</div></div>
+      <div class="ritem"><div class="ricon ri-b">💻</div><div class="rinfo"><div class="rname">MacBook Pro · Charging Issue</div><div class="rsub">Testing motherboard rails</div></div><span class="rbadge rb-prog">In repair</span></div>
+      <div class="pstats"><div class="pstat"><div class="pstat-n" id="heroTotal">1,240</div><div class="pstat-l">Total jobs</div></div><div class="pstat"><div class="pstat-n">24hr</div><div class="pstat-l">Avg time</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee">
+    <div class="mitem"><span class="mdot"></span>LAPTOP REPAIR</div>
+    <div class="mitem"><span class="mdot"></span>PHONE REPAIR</div>
+    <div class="mitem"><span class="mdot"></span>PLAYSTATION & XBOX</div>
+    <div class="mitem"><span class="mdot"></span>CHIP-LEVEL SOLDERING</div>
+    <div class="mitem"><span class="mdot"></span>DATA RECOVERY</div>
+    <div class="mitem"><span class="mdot"></span>LAPTOP REPAIR</div>
+    <div class="mitem"><span class="mdot"></span>PHONE REPAIR</div>
+    <div class="mitem"><span class="mdot"></span>PLAYSTATION & XBOX</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<div class="svc-bg" id="services">
+  <div class="sec">
+    <div class="sec-hdr">
+      <div>
+        <div class="eyebrow">Our Specialized Expertise</div>
+        <div class="sec-title">What can we fix for you?</div>
+      </div>
+      <div class="sec-sub">From simple screen replacements to highly complex micro-soldering and liquid damage recovery on component logic boards.</div>
+    </div>
+    <div class="svc-grid">
+      <div class="svc-card">
+        <div class="svc-num">01 / HARDWARE</div>
+        <span class="svc-icon">💻</span>
+        <h3>Computer & Laptop Repair</h3>
+        <p>MacBook board repair, screen replacement, hinge repairs, RAM upgrades, and battery solutions.</p>
+        <div class="svc-foot"><span class="svc-tag t-hw">Hardware</span><span class="svc-arr">→</span></div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-num">02 / HARDWARE</div>
+        <span class="svc-icon">📱</span>
+        <h3>Smartphones & Tablets</h3>
+        <p>Premium screen replacement, charging port fixes, charging IC diagnostics, and water damage treatment.</p>
+        <div class="svc-foot"><span class="svc-tag t-hw">Hardware</span><span class="svc-arr">→</span></div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-num">03 / HARDWARE</div>
+        <span class="svc-icon">🎮</span>
+        <h3>Gaming Consoles</h3>
+        <p>PS5 HDMI port replacements, Xbox optical drive repairs, cooling fan replacements, and thermal paste service.</p>
+        <div class="svc-foot"><span class="svc-tag t-hw">Hardware</span><span class="svc-arr">→</span></div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-num">04 / SOFTWARE</div>
+        <span class="svc-icon">💿</span>
+        <h3>OS & Software Deployments</h3>
+        <p>Clean installation of Windows 11/10 Pro, macOS updates, system optimizations, and software cleaning.</p>
+        <div class="svc-foot"><span class="svc-tag t-sw">Software</span><span class="svc-arr">→</span></div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-num">05 / DIAGNOSTICS</div>
+        <span class="svc-icon">🔍</span>
+        <h3>Microscope Diagnostics</h3>
+        <p>Short circuit tracing using thermal tracking and high-magnification multi-meter schematics mapping.</p>
+        <div class="svc-foot"><span class="svc-tag t-dg">Diagnostics</span><span class="svc-arr">→</span></div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-num">06 / RECOVERY</div>
+        <span class="svc-icon">💾</span>
+        <h3>Advanced Data Recovery</h3>
+        <p>Retrieving critically lost documentation and operational partition records from dead SSDs and storage drives.</p>
+        <div class="svc-foot"><span class="svc-tag t-dg">Diagnostics</span><span class="svc-arr">→</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<div class="sec">
+  <div class="sec-hdr">
+    <div>
+      <div class="eyebrow">Real Results</div>
+      <div class="sec-title">Recent Repairs Showcase</div>
+    </div>
+  </div>
+  <div class="gallery-grid" id="galleryGrid">
+    <div style="color:var(--text3); font-size:0.9rem;">Connecting to workshop showcase database...</div>
+  </div>
+</div>
+
+<!-- TRACK REPAIR -->
+<div class="track-bg" id="track">
+  <div class="track-inner">
+    <div class="sec-title" style="color:var(--ink)">Where's your device?</div>
+    <div class="track-form">
+      <input type="text" class="track-input" id="trackId" placeholder="Ticket ID (e.g., 1001)">
+      <input type="tel" class="track-phone-input" id="trackPhone" placeholder="Phone number on file">
+      <button class="btn btn-primary btn-lg" onclick="trackRepair()">Track</button>
+    </div>
+    <div class="track-result" id="trackResult">
+      <div class="sbadge sb-pr" id="trackBadge">In Progress</div>
+      <div class="track-dev" id="trackDev">Device model</div>
+      <div class="track-meta" id="trackMeta">Details loading...</div>
+      <div class="track-technician" id="trackTechnician" style="display:none;"></div>
+      <button class="track-chat-toggle" id="trackChatToggle" style="display:none; margin-top:1rem;" onclick="toggleGuestChat()">
+        💬 Chat with your technician
+      </button>
+      <div class="guest-chat-box" id="guestChatBox">
+        <div class="guest-chat-messages" id="guestChatMessages"></div>
+        <form class="guest-chat-input-row" id="guestChatForm">
+          <input type="text" id="guestChatInput" placeholder="Type a message..." autocomplete="off" required>
+          <button type="submit">➤</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PREMIUM ACCESSORIES -->
+<div class="sec" id="products">
+  <div class="sec-hdr">
+    <div>
+      <div class="eyebrow">Genuine Hardware Shop</div>
+      <div class="sec-title">Accessories & Spares</div>
+    </div>
+  </div>
+  <div class="prod-grid">
+    <div class="pcard">
+      <div class="pcard-img">🔌</div>
+      <div class="pcard-body">
+        <div class="pcard-name">65W Type-C Laptop Charger</div>
+        <div class="pcard-price">65,000 TZS</div>
+        <div class="pcard-stock">In stock</div>
+      </div>
+    </div>
+    <div class="pcard">
+      <div class="pcard-img">💽</div>
+      <div class="pcard-body">
+        <div class="pcard-name">Crucial BX500 500GB SSD</div>
+        <div class="pcard-price">95,000 TZS</div>
+        <div class="pcard-stock">In stock</div>
+      </div>
+    </div>
+    <div class="pcard">
+      <div class="pcard-img">🔋</div>
+      <div class="pcard-body">
+        <div class="pcard-name">iPhone 11 Replacement Battery</div>
+        <div class="pcard-price">45,000 TZS</div>
+        <div class="pcard-stock">In stock</div>
+      </div>
+    </div>
+    <div class="pcard">
+      <div class="pcard-img">💨</div>
+      <div class="pcard-body">
+        <div class="pcard-name">Baseus High-Speed HDMI 2.1</div>
+        <div class="pcard-price">25,000 TZS</div>
+        <div class="pcard-stock">Low stock</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="contact-bg" id="contact">
+  <div class="sec">
+    <div class="contact-grid">
+      <div class="cinfo">
+        <div class="eyebrow" style="color:var(--amber-b)">Get in touch</div>
+        <div class="sec-title" style="color:#fff">Let's restore your device.</div>
+        <p style="color:rgba(255,255,255,0.6);font-size:0.88rem;line-height:1.6">Have a broken machine or an IT request? Drop a query or drop into our workspace in Dar es Salaam.</p>
+        <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:1.1rem">
+          <div class="citem"><div class="cicon">📍</div><div><div class="cl">Address</div><div class="cv">Dar es Salaam, Tanzania</div></div></div>
+          <div class="citem"><div class="cicon">📞</div><div><div class="cl">Call / WhatsApp</div><div class="cv">+255 (0) 712 000 000</div></div></div>
+          <div class="citem"><div class="cicon">✉️</div><div><div class="cl">Email</div><div class="cv">info@mkumbwatronix.com</div></div></div>
+        </div>
+      </div>
+      <div class="cform">
+        <div class="cform-title">Send us a message</div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Your name</label><input type="text" class="fi" placeholder="Juma"></div>
+          <div class="fg"><label class="fl">Phone number</label><input type="tel" class="fi" placeholder="0712..."></div>
+        </div>
+        <div class="fg"><label class="fl">Device / Issue description</label><textarea class="fi" placeholder="My laptop shows a black screen..."></textarea></div>
+        <button class="btn btn-ink" style="width:100%" onclick="showToast('Message sent! Our support will contact you.','success')">Send message</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGN IN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Sign in</div><button class="modal-close" onclick="closeModal('loginModal')">✕</button></div>
+    <div class="fg"><label class="fl">Username</label><input type="text" class="fi" id="loginUser"></div>
+    <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="loginPass"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="executeLoginWorkflow()">Sign in</button>
+    <p style="text-align:center;font-size:0.77rem;margin-top:1.1rem">No account? <a href="#" onclick="closeModal('loginModal');openModal('registerModal')">Create one free</a></p>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Create account</div><button class="modal-close" onclick="closeModal('registerModal')">✕</button></div>
+    
+    <label class="fl">Profile Picture (Optional)</label>
+    <div class="avatar-upload-container">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%2396a3b5'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" class="avatar-preview" id="regAvatarPreview">
+      <div class="file-input-wrapper">
+        <button class="btn btn-ghost" style="padding:0.35rem 0.7rem;font-size:0.75rem">Choose Image</button>
+        <input type="file" id="regAvatarInput" accept="image/*" onchange="previewImage(this, 'regAvatarPreview')">
+      </div>
+    </div>
+
+    <div class="fr">
+      <div class="fg"><label class="fl">First name</label><input type="text" class="fi" id="regFirst"></div>
+      <div class="fg"><label class="fl">Last name</label><input type="text" class="fi" id="regLast"></div>
+    </div>
+    <div class="fg"><label class="fl">Username</label><input type="text" class="fi" id="regUser"></div>
+    <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="regEmail"></div>
+    <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" id="regPhone"></div>
+    <div class="fg"><label class="fl">Physical Address (Optional)</label><input type="text" class="fi" id="regAddress" placeholder="e.g. Kinondoni, Dar es Salaam"></div>
+    <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="regPass"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="executeRegisterWorkflow()">Create account</button>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal-overlay" id="editProfileModal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Update Profile Details</div><button class="modal-close" onclick="closeModal('editProfileModal')">✕</button></div>
+    
+    <div style="text-align: center; margin-bottom: 1.75rem;">
+      <label class="fl" style="margin-bottom: 0.5rem; display: block;">Profile Picture</label>
+      <div style="position: relative; width: 110px; height: 110px; margin: 0 auto; cursor: pointer;" onclick="document.getElementById('editAvatarInput').click()">
+        <img src="" id="editAvatarPreview" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid var(--white); box-shadow: var(--shadow); background: var(--border2); transition: opacity 0.2s;">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; color: #fff; font-size: 0.72rem; font-weight: 600; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.05em;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+          📸 Change
+        </div>
+      </div>
+      <input type="file" id="editAvatarInput" accept="image/*" style="display: none;" onchange="previewImage(this, 'editAvatarPreview')">
+      <span style="font-size: 0.72rem; color: var(--text3); display: block; margin-top: 0.5rem;">Click the circle to upload a picture</span>
+    </div>
+
+    <div class="fr">
+      <div class="fg"><label class="fl">First Name</label><input type="text" class="fi" id="editFirst"></div>
+      <div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" id="editLast"></div>
+    </div>
+    <div class="fg"><label class="fl">Email Address</label><input type="email" class="fi" id="editEmail"></div>
+    <div class="fg"><label class="fl">Phone Number</label><input type="tel" class="fi" id="editPhone"></div>
+    <div class="fg"><label class="fl">Physical Address</label><input type="text" class="fi" id="editAddress"></div>
+    
+    <button class="btn btn-ink" style="width:100%;margin-top:0.5rem" onclick="saveProfileChanges()">Save Changes</button>
+  </div>
+</div>
+
+<!-- PROFESSIONAL BOOKING MODAL -->
+<div class="modal-overlay" id="bookModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">Book a Repair Request</div>
+      <button class="modal-close" onclick="closeModal('bookModal')">✕</button>
+    </div>
+    <form id="bookingForm" onsubmit="submitBookingForm(event)">
+      <div class="fg">
+        <label class="fl">Device Category *</label>
+        <select class="fi" id="bookCategory" required>
+          <option value="">Select Category...</option>
+          <option value="Computer / Laptop">Computer / Laptop</option>
+          <option value="Smartphone / Tablet">Smartphone / Tablet</option>
+          <option value="Gaming Console">Gaming Console (PS5, Xbox, Switch)</option>
+          <option value="Audio / TV System">Audio / TV System</option>
+          <option value="Micro-Soldering / Board Level">Micro-Soldering / Board Level</option>
+          <option value="Other Hardware">Other Hardware</option>
+        </select>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Service Needed *</label>
+        <select class="fi" id="bookServiceType" required>
+          <option value="">Loading services...</option>
+        </select>
+      </div>
+
+      <div class="fr">
+        <div class="fg">
+          <label class="fl">Brand *</label>
+          <input type="text" class="fi" id="bookBrand" placeholder="e.g. Apple, Sony, HP" required>
+        </div>
+        <div class="fg">
+          <label class="fl">Model *</label>
+          <input type="text" class="fi" id="bookModel" placeholder="e.g. MacBook Pro M1, PS5" required>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Phone Number *</label>
+        <input type="tel" class="fi" id="bookPhone" placeholder="e.g. 0712 345 678" required>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Problem / Issue Description *</label>
+        <textarea class="fi" id="bookIssue" placeholder="Describe what's wrong (e.g. Broken screen, won't turn on, overheating)..." required></textarea>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Preferred Drop-off Date *</label>
+        <input type="date" class="fi" id="bookDate" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem">Submit Repair Booking</button>
+    </form>
+  </div>
+</div>
+
+<!-- BOOKING SUCCESS MODAL -->
+<div class="modal-overlay" id="bookingSuccessModal">
+  <div class="modal" style="text-align: center;">
+    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
+    <div class="modal-title" style="margin-bottom: 0.5rem;">Booking Confirmed!</div>
+    <p style="font-size: 0.88rem; color: var(--text2); margin-bottom: 1.25rem;">
+      Your repair request has been assigned to our workshop queue.
+    </p>
+
+    <div style="background: var(--surface); padding: 1rem; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 1.5rem;">
+      <div style="font-size: 0.75rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em;">Your Ticket ID</div>
+      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--blue);" id="successTicketId">#MT-0000</div>
+    </div>
+
+    <div style="text-align: left; background: var(--amber-s); padding: 0.85rem; border-radius: 8px; border: 1px solid var(--amber-b); font-size: 0.8rem; color: var(--amber); margin-bottom: 1.5rem; line-height: 1.5;">
+      <strong>📍 Next Steps:</strong> Please drop off your device at our Dar es Salaam workshop. Bring this Ticket ID with you for quick check-in.
+    </div>
+
+    <div style="display: flex; gap: 0.5rem;">
+      <button class="btn btn-ghost" style="flex: 1;" onclick="closeModal('bookingSuccessModal')">Close</button>
+      <a href="/customer/" class="btn btn-primary" style="flex: 1; justify-content: center;">View Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- LINK GLOBAL ARCHITECTURE HERE -->
+<script src="{% static 'js/api.js' %}"></script>
+
+<script>
+let token = StorageManager.getToken('access_token') || localStorage.getItem('mt_token') || null;
+
+function handleTechnicianRedirection(isTechnicianFlag = false) {
+  const isTechUser = isTechnicianFlag === true || localStorage.getItem('is_tech_user') === 'true';
+  if (isTechUser && !window.location.pathname.startsWith('/technician/')) {
+    window.location.href = '/technician/';
+    return true;
+  }
+  return false;
+}
+
+function redirectToRoleDashboard(isTechnicianFlag = false) {
+  if (handleTechnicianRedirection(isTechnicianFlag)) return;
+  if (!window.location.pathname.startsWith('/customer/')) {
+    window.location.href = '/customer/';
+  }
+}
+
+function openModal(id){
+  if (id === 'bookModal') {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('bookDate');
+    if (dateInput && !dateInput.value) dateInput.value = today;
+  }
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => {
+    if(e.target === m) m.classList.remove('open');
+  });
+});
+
+function showToast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; 
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.className = 'toast', 4500);
+}
+
+function previewImage(input, previewId) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById(previewId).src = e.target.result;
+    }
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function toggleProfileDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('profileDropdownMenu');
+  if (menu) {
+    menu.classList.toggle('active');
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const dropdown = document.querySelector('.profile-dropdown');
+  const menu = document.getElementById('profileDropdownMenu');
+  if (menu && dropdown && !dropdown.contains(e.target)) {
+    menu.classList.remove('active');
+  }
+});
+
+function toggleMobileNav() {
+  document.getElementById('navLinksList').classList.toggle('open');
+}
+document.querySelectorAll('#navLinksList a').forEach(link => {
+  link.addEventListener('click', () => {
+    document.getElementById('navLinksList').classList.remove('open');
+  });
+});
+
+async function loadServiceTypes() {
+  const select = document.getElementById('bookServiceType');
+  if (!select) return;
+
+  try {
+    const response = await fetch(`${window.location.origin}/api/services/`);
+    if (!response.ok) throw new Error('Service catalog request failed');
+    const data = await response.json();
+    const services = data.results || data;
+
+    if (services && services.length > 0) {
+      select.innerHTML = `<option value="">Select a service...</option>` + services.map(s => `
+        <option value="${s.id}">${s.name} — TZS ${Number(s.base_price).toLocaleString()}</option>
+      `).join('');
+    } else {
+      select.innerHTML = `<option value="">No services available right now</option>`;
+    }
+  } catch (e) {
+    select.innerHTML = `<option value="">Could not load services — refresh and try again</option>`;
+  }
+}
+
+async function loadGallery() {
+  const container = document.getElementById('galleryGrid');
+  if (!container) return;
+
+  try {
+    const urlOrigin = `${window.location.origin}/api`;
+    const response = await fetch(`${urlOrigin}/gallery/`);
+    if (response.ok) {
+      const data = await response.json();
+      const works = data.results || data;
+
+      if (works && works.length > 0) {
+        container.innerHTML = works.map(item => `
+          <div class="gcard">
+            <div class="gcard-images">
+              ${item.is_featured ? '<span class="gcard-featured">✓ Fixed</span>' : ''}
+              <div class="gcard-img">
+                ${item.before_image 
+                  ? `<img src="${item.before_image}" alt="Before">` 
+                  : `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);color:var(--text4);font-size:0.75rem;gap:0.5rem"><span style="font-size:2rem;opacity:0.3">📷</span>No photo yet</div>`
+                }
+                <span class="img-label">Before</span>
+              </div>
+              <div class="gcard-divider"></div>
+              <div class="gcard-img">
+                ${item.after_image 
+                  ? `<img src="${item.after_image}" alt="After">` 
+                  : `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);color:var(--text4);font-size:0.75rem;gap:0.5rem"><span style="font-size:2rem;opacity:0.3">✨</span>No photo yet</div>`
+                }
+                <span class="img-label">After</span>
+              </div>
+            </div>
+            <div class="gcard-body">
+              <div class="gcard-cat">${item.category || 'Repair'}</div>
+              <div class="gcard-title">${item.title || 'Device Repair'}</div>
+              <div class="gcard-device">${item.description || ''}</div>
+            </div>
+          </div>
+        `).join('');
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;background:var(--surface);border:2px dashed var(--border2);border-radius:16px;text-align:center">
+          <div style="font-size:3rem;margin-bottom:1rem;opacity:0.3">🔧</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:0.5rem">Repair showcase coming soon</div>
+          <div style="font-size:0.85rem;color:var(--text3);max-width:320px;line-height:1.6">Our technicians are busy fixing devices. Before & after photos will appear here as jobs are completed.</div>
+        </div>
+      `;
+    }
+  } catch (e) {
+    container.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text4);font-size:0.85rem">
+        <div style="font-size:2rem;margin-bottom:0.75rem">⚠️</div>
+        Could not load gallery — server may be offline.
+      </div>
+    `;
+  }
+}
+
+function checkUserSession() {
+  const authContainer = document.getElementById('navbarAuthSection');
+  const mobileAuthItem = document.getElementById('mobileAuthLinkItem');
+  if (!authContainer) return;
+
+  if (token) {
+    const cachedAvatar = localStorage.getItem('user_avatar') || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%2396a3b5'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
+    const cachedName = localStorage.getItem('user_first') || 'Account';
+    const isTech = localStorage.getItem('is_tech_user') === 'true';
+    const dashboardLink = isTech ? '/technician/' : '/customer/';
+    
+    authContainer.innerHTML = `
+      <div class="profile-dropdown">
+        <div class="profile-trigger" onclick="toggleProfileDropdown(event)">
+          <img src="${cachedAvatar}" class="profile-nav-img" id="navAvatarElement">
+          <span id="navUserName">${cachedName}</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" style="opacity:0.55;margin-left:2px;"><path d="M1 3l4 4 4-4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="profile-menu" id="profileDropdownMenu">
+          <a href="#" onclick="openEditProfileModal(); toggleProfileDropdown(event);">✏️ Edit Profile</a>
+          <a href="${dashboardLink}">📊 Dashboard</a>
+          <div class="menu-divider"></div>
+          <button onclick="logout()">🚪 Sign Out</button>
+        </div>
+      </div>
+    `;
+    if (mobileAuthItem) {
+      mobileAuthItem.innerHTML = `<a href="${dashboardLink}">📊 Dashboard (${cachedName})</a>`;
+    }
+  } else {
+    authContainer.innerHTML = `
+      <a href="#" class="btn btn-ghost" onclick="openModal('loginModal')">Sign in</a>
+      <a href="#" class="btn btn-primary" onclick="openModal('bookModal')">Book a repair</a>
+    `;
+    if (mobileAuthItem) {
+      mobileAuthItem.innerHTML = `<a href="#" onclick="openModal('loginModal')">Sign in / Account</a>`;
+    }
+  }
+}
+
+function logout() {
+  if (typeof StorageManager !== 'undefined' && StorageManager.clearAuth) {
+    StorageManager.clearAuth();
+  }
+  localStorage.clear();
+  token = null;
+  showToast('Signed out successfully', 'success');
+  setTimeout(() => { window.location.reload(); }, 500);
+}
+
+function openEditProfileModal() {
+  document.getElementById('editFirst').value = localStorage.getItem('user_first') || '';
+  document.getElementById('editLast').value = localStorage.getItem('user_last') || '';
+  document.getElementById('editEmail').value = localStorage.getItem('user_email') || '';
+  document.getElementById('editPhone').value = localStorage.getItem('user_phone') || '';
+  document.getElementById('editAddress').value = localStorage.getItem('user_address') || '';
+  
+  const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%2396a3b5'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
+  document.getElementById('editAvatarPreview').src = localStorage.getItem('user_avatar') || defaultAvatar;
+  
+  openModal('editProfileModal');
+}
+
+async function saveProfileChanges() {
+  const firstName = document.getElementById('editFirst').value;
+  const lastName = document.getElementById('editLast').value;
+  const email = document.getElementById('editEmail').value;
+  const phone = document.getElementById('editPhone').value;
+  const address = document.getElementById('editAddress').value;
+  const photoFile = document.getElementById('editAvatarInput').files[0];
+
+  const formData = new FormData();
+  formData.append('first_name', firstName);
+  formData.append('last_name', lastName);
+  formData.append('email', email);
+  formData.append('phone', phone);
+  formData.append('address', address);
+  if (photoFile) {
+    formData.append('profile_photo', photoFile);
+  }
+
+  if (typeof updateProfile === 'function') {
+    const result = await updateProfile(formData);
+    if (result.ok && result.data) {
+      localStorage.setItem('user_first', result.data.first_name || firstName);
+      localStorage.setItem('user_last', result.data.last_name || lastName);
+      localStorage.setItem('user_email', result.data.email || email);
+      localStorage.setItem('user_phone', result.data.phone || phone);
+      localStorage.setItem('user_address', result.data.address || address);
+      if (result.data.profile_photo) {
+        localStorage.setItem('user_avatar', result.data.profile_photo);
+      }
+      showToast('Profile updated!', 'success');
+    } else {
+      showToast('Failed to save profile. Please try again.', 'error');
+    }
+  }
+
+  closeModal('editProfileModal');
+  checkUserSession();
+}
+
+async function executeLoginWorkflow(){
+  const u = document.getElementById('loginUser').value, p = document.getElementById('loginPass').value;
+  if(!u || !p){ showToast('Fill in all fields', 'error'); return; }
+  
+  try {
+    if (typeof login === 'function') {
+      const d = await login(u, p);
+      
+      if (d && d.access) {
+        token = d.access;
+        closeModal('loginModal');
+        
+        localStorage.setItem('user_first', d.first_name || u);
+        
+        const userIsTechnician = d.is_technician === true;
+        localStorage.setItem('is_tech_user', userIsTechnician);
+        
+        await syncProfileFromServer();
+        checkUserSession();
+        showToast('Welcome back!', 'success');
+        
+        redirectToRoleDashboard(userIsTechnician);
+      } else {
+        showToast('Invalid credentials', 'error');
+      }
+    }
+  } catch(e) { showToast('Connection error', 'error'); }
+}
+
+async function executeRegisterWorkflow(){
+  const username = document.getElementById('regUser').value.trim();
+  const email = document.getElementById('regEmail').value;
+  const first_name = document.getElementById('regFirst').value;
+  const last_name = document.getElementById('regLast').value;
+  const phone = document.getElementById('regPhone').value;
+  const address = document.getElementById('regAddress').value;
+  const password = document.getElementById('regPass').value;
+  const photoFile = document.getElementById('regAvatarInput').files[0];
+  
+  if(!username || !password){ showToast('Fill in required fields', 'error'); return; }
+  
+  const body = { username, email, first_name, last_name, phone, address, password, password2: password };
+  
+  try {
+    if (typeof register === 'function') {
+      const r = await register(body);
+      
+      if (r) {
+        closeModal('registerModal');
+        localStorage.setItem('user_first', first_name);
+        localStorage.setItem('user_last', last_name);
+        localStorage.setItem('user_email', email);
+        localStorage.setItem('user_phone', phone);
+        localStorage.setItem('user_address', address);
+
+        const loginData = await login(username, password);
+        
+        if (loginData && loginData.access) {
+          token = loginData.access;
+          
+          const userIsTechnician = loginData.is_technician === true;
+          localStorage.setItem('is_tech_user', userIsTechnician);
+
+          if (photoFile && typeof updateProfile === 'function') {
+            const formData = new FormData();
+            formData.append('profile_photo', photoFile);
+            const photoResult = await updateProfile(formData);
+            if (photoResult.ok && photoResult.data && photoResult.data.profile_photo) {
+              localStorage.setItem('user_avatar', photoResult.data.profile_photo);
+            }
+          }
+          
+          await syncProfileFromServer();
+          checkUserSession();
+          showToast('Welcome to your new custom profile!', 'success');
+          
+          redirectToRoleDashboard(userIsTechnician);
+        }
+      } else {
+        showToast('Registration failed.', 'error');
+      }
+    }
+  } catch (e) { showToast('Connection error', 'error'); }
+}
+
+async function submitBookingForm(e) {
+  e.preventDefault();
+
+  const category = document.getElementById('bookCategory').value;
+  const serviceTypeId = document.getElementById('bookServiceType').value;
+  const brand = document.getElementById('bookBrand').value;
+  const model = document.getElementById('bookModel').value;
+  const phone = document.getElementById('bookPhone').value;
+  const description = document.getElementById('bookIssue').value;
+
+  if (!serviceTypeId) {
+    showToast('Please select a service.', 'error');
+    return;
+  }
+
+  const payload = {
+    device_type: category,
+    device_model: `${brand} ${model}`,
+    customer_phone: phone,
+    customer_notes: description,
+    service_type_id: serviceTypeId
+  };
+
+  try {
+    let response;
+    if (typeof apiRequestRaw === 'function') {
+      response = await apiRequestRaw('/public/book/', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+    } else {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      response = await fetch(`${window.location.origin}/api/public/book/`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      });
+    }
+
+    if (response.ok) {
+      const data = await response.json();
+      closeModal('bookModal');
+      document.getElementById('bookingForm').reset();
+      
+      const ticketId = data.ticket_id || data.id || 'MT-' + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('successTicketId').textContent = typeof ticketId === 'number' ? `#MT-${ticketId}` : ticketId;
+      openModal('bookingSuccessModal');
+    } else {
+      showToast('Failed to submit booking. Please check details.', 'error');
+    }
+  } catch (err) {
+    console.error('Booking submission error:', err);
+    showToast('Connection error. Could not connect to backend API.', 'error');
+  }
+}
+
+let guestChatToken = null;
+let guestChatSrId = null;
+let guestChatPollInterval = null;
+
+async function trackRepair(){
+  const id = document.getElementById('trackId').value.trim().replace('#', '').replace('MT-', '');
+  const phone = document.getElementById('trackPhone').value.trim();
+
+  if(!id || !phone) {
+    showToast('Enter both your ticket ID and phone number', 'error');
+    return;
+  }
+
+  try{
+    const r = await fetch(`${window.location.origin}/api/public/verify-ticket/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticket_id: id, phone: phone })
+    });
+
+    if(!r.ok){
+      const err = await r.json();
+      showToast(err.error || 'Repair ticket not found. Check your ticket ID and phone.', 'error');
+      document.getElementById('trackResult').classList.remove('show');
+      return;
+    }
+
+    const d = await r.json();
+    guestChatToken = d.token;
+    guestChatSrId = d.ticket_id;
+
+    document.getElementById('trackDev').textContent = d.device_model || 'Device';
+    const status = d.status || 'PENDING';
+    const isComplete = status.toLowerCase().includes('ready') || status.toLowerCase().includes('completed');
+    const badge = document.getElementById('trackBadge');
+    badge.textContent = status.replace(/_/g, ' ');
+    badge.className = `sbadge ${isComplete ? 'sb-cm' : 'sb-pr'}`;
+
+    document.getElementById('trackMeta').innerHTML = `<strong>Ticket:</strong> #${d.ticket_id}`;
+
+    const techBox = document.getElementById('trackTechnician');
+    const chatToggle = document.getElementById('trackChatToggle');
+    if (d.technician) {
+      techBox.style.display = 'flex';
+      techBox.innerHTML = `<span>Assigned to <strong>${d.technician}</strong></span>${d.technician_phone ? `<span>${d.technician_phone}</span>` : ''}`;
+      chatToggle.style.display = 'inline-block';
+    } else {
+      techBox.style.display = 'none';
+      chatToggle.style.display = 'none';
+      document.getElementById('guestChatBox').classList.remove('show');
+    }
+
+    document.getElementById('trackResult').classList.add('show');
+  } catch(e) {
+    showToast('Could not reach workshop database.', 'error');
+  }
+}
+
+function toggleGuestChat() {
+  const box = document.getElementById('guestChatBox');
+  box.classList.toggle('show');
+  if (box.classList.contains('show')) {
+    loadGuestChatMessages();
+    if (guestChatPollInterval) clearInterval(guestChatPollInterval);
+    guestChatPollInterval = setInterval(loadGuestChatMessages, 8000);
+  } else if (guestChatPollInterval) {
+    clearInterval(guestChatPollInterval);
+    guestChatPollInterval = null;
+  }
+}
+
+async function loadGuestChatMessages() {
+  if (!guestChatToken || !guestChatSrId) return;
+  try {
+    const r = await fetch(`${window.location.origin}/api/public/ticket/${guestChatSrId}/messages/`, {
+      headers: { 'X-Ticket-Token': guestChatToken }
+    });
+    if (!r.ok) return;
+    const messages = await r.json();
+    const container = document.getElementById('guestChatMessages');
+    container.innerHTML = messages.length === 0
+      ? '<p style="font-size:0.8rem; color:var(--text3); text-align:center;">No messages yet. Say hello to your technician.</p>'
+      : messages.map(m => `
+          <div class="guest-chat-bubble ${m.sender_role === 'CUSTOMER' ? 'mine' : 'theirs'}">
+            <span class="guest-chat-sender">${m.sender_display_name}</span>
+            <p>${m.body}</p>
+          </div>
+        `).join('');
+    container.scrollTop = container.scrollHeight;
+  } catch (e) {
+    console.error('Guest chat load failure:', e);
+  }
+}
+
+document.getElementById('guestChatForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const input = document.getElementById('guestChatInput');
+  const body = input.value.trim();
+  if (!body || !guestChatToken || !guestChatSrId) return;
+  try {
+    const r = await fetch(`${window.location.origin}/api/public/ticket/${guestChatSrId}/messages/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Ticket-Token': guestChatToken },
+      body: JSON.stringify({ body })
+    });
+    if (r.ok) {
+      input.value = '';
+      loadGuestChatMessages();
+    }
+  } catch (err) {
+    console.error('Guest chat send failure:', err);
+  }
+});
+
+async function syncProfileFromServer() {
+  if (!token) return;
+  try {
+    if (typeof fetchProfile === 'function') {
+      const profile = await fetchProfile();
+      if (!profile) return;
+
+      localStorage.setItem('user_first', profile.first_name || '');
+      localStorage.setItem('user_last', profile.last_name || '');
+      localStorage.setItem('user_email', profile.email || '');
+      localStorage.setItem('user_phone', profile.phone || '');
+      localStorage.setItem('user_address', profile.address || '');
+      if (profile.profile_photo) {
+        localStorage.setItem('user_avatar', profile.profile_photo);
+      }
+    }
+  } catch (e) {
+    console.error("Failed to sync profile from server:", e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!handleTechnicianRedirection()) {
+    await syncProfileFromServer();
+    checkUserSession();
+    loadGallery();
+    loadServiceTypes();
+  }
+});
+</script>
+</body>
+</html>
