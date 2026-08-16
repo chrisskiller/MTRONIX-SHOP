@@ -949,7 +949,7 @@ async function executeRegisterWorkflow(){
   
   if(!username || !password){ showToast('Fill in required fields', 'error'); return; }
   
-  const body = { username, email, first_name, last_name, phone, address, password, password2: password };
+const body = { username, email, first_name, last_name, phone, address, password, password2: password };
   
   try {
     if (typeof register === 'function') {
@@ -990,7 +990,10 @@ async function executeRegisterWorkflow(){
         showToast('Registration failed.', 'error');
       }
     }
-  } catch (e) { showToast('Connection error', 'error'); }
+  } catch (e) {
+    const msg = (e && e.data) ? Object.values(e.data).flat().join(' ') : 'Connection error';
+    showToast(msg, 'error');
+  }
 }
 
 async function submitBookingForm(e) {

@@ -121,11 +121,19 @@ async function apiRequest(endpoint, options = {}, isRetry = false) {
         }
 
         // If content isn't JSON, return raw text response
+// If content isn't JSON, return raw text response
         const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-            return await response.json();
+        const data = contentType && contentType.includes("application/json")
+            ? await response.json()
+            : await response.text();
+
+        if (!response.ok) {
+            const err = new Error("Request failed");
+            err.status = response.status;
+            err.data = data;
+            throw err;
         }
-        return await response.text();
+        return data;
     } catch (error) {
         console.error(`🚨 [Network Failure] Request to ${url} dropped:`, error);
         throw error;

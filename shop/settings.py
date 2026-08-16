@@ -32,6 +32,7 @@ ALLOWED_HOSTS = [
     '192.168.0.103',
     '192.168.0.106',  # 🌟 Your Windows 11 local network IP address
     '127.0.0.1', 
+    '192.168.1.171',  # 🌟 Your Windows 11 local network IP address
     'localhost'
 ]
 
