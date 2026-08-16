@@ -582,6 +582,16 @@
                 <p class="text-[10px] text-gray-500 mt-1.5">Deducts from the vault immediately and updates this job's parts cost. Includes accessories marked "usable as spare".</p>
                 <p class="text-[10px] text-amber-400 mt-1" id="modalPartsCostReadout"></p>
             </div>
+            <div class="border-t border-gray-800 pt-4">
+                <label class="block font-bold text-gray-400 mb-1">Customer Conversation</label>
+                <div id="modalChatMessages" class="bg-gray-900 border border-gray-700 rounded-xl p-3 h-40 overflow-y-auto space-y-2 text-[11px]">
+                    <p class="text-gray-500 text-center">Loading messages...</p>
+                </div>
+                <form id="modalChatForm" class="flex gap-2 mt-2" onsubmit="return false;">
+                    <input type="text" id="modalChatInput" placeholder="Reply to customer..." autocomplete="off" class="flex-1 bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none font-mono">
+                    <button type="submit" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </div>
             <div class="flex justify-end gap-3 pt-2">
                 <button onclick="closeModal()" class="px-4 py-2.5 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700">Cancel</button>
                 <button onclick="saveJobUpdate()" class="px-4 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 shadow-lg shadow-blue-600/20">Save & Broadcast Update</button>
@@ -672,6 +682,7 @@
         let serviceTypesCache = [];
         let currentUserId = null;
         let activeJobForModal = null;
+        let modalChatPollInterval = null;
 
         /* ================= WINDOW SWITCHING ================= */
         const WINDOW_ALIASES = { repairs: 'jobs', inventory: 'spares', gallery: 'showcase' };
@@ -1270,6 +1281,9 @@
             populateJobSpareDropdown();
             updateModalPartsCostReadout(job);
             document.getElementById('updateJobModal').classList.remove('hidden');
+            loadJobChatMessages();
+            if (modalChatPollInterval) clearInterval(modalChatPollInterval);
+            modalChatPollInterval = setInterval(loadJobChatMessages, 8000);
         }
 
         function updateModalPartsCostReadout(job) {
@@ -1302,7 +1316,55 @@
 
         function closeModal() {
             document.getElementById('updateJobModal').classList.add('hidden');
+            if (modalChatPollInterval) clearInterval(modalChatPollInterval);
+            modalChatPollInterval = null;
         }
+
+        /* ================= CUSTOMER CHAT (per active job) ================= */
+        async function loadJobChatMessages() {
+            if (!activeJobForModal) return;
+            try {
+                const response = await apiRequestRaw(`/service-requests/${activeJobForModal}/messages/`, { method: 'GET' });
+                if (!response || !response.ok) return;
+                const messages = await response.json();
+                const container = document.getElementById('modalChatMessages');
+                container.innerHTML = messages.length === 0
+                    ? '<p class="text-gray-500 text-center">No messages yet.</p>'
+                    : messages.map(m => `
+                        <div class="p-2 rounded-lg ${m.sender_role === 'TECHNICIAN' ? 'bg-blue-600/20 ml-6' : 'bg-gray-800 mr-6'}">
+                            <span class="block font-bold text-gray-400">${m.sender_display_name}</span>
+                            <span class="text-white">${m.body}</span>
+                        </div>
+                    `).join('');
+                container.scrollTop = container.scrollHeight;
+            } catch (err) {
+                console.error('Job chat load failure:', err);
+            }
+        }
+
+        document.getElementById('modalChatForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (!activeJobForModal) return;
+            const input = document.getElementById('modalChatInput');
+            const body = input.value.trim();
+            if (!body) return;
+            try {
+                const response = await apiRequestRaw(`/service-requests/${activeJobForModal}/messages/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({ body })
+                });
+                if (response && response.ok) {
+                    input.value = '';
+                    loadJobChatMessages();
+                } else if (response) {
+                    const err = await response.json().catch(() => ({}));
+                    triggerSystemAlert(err.error || 'Could not send message.', 'warning');
+                }
+            } catch (err) {
+                console.error('Job chat send failure:', err);
+            }
+        });
 
         async function saveJobUpdate() {
             if (!activeJobForModal) return;
