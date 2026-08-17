@@ -95,8 +95,12 @@
                     <i class="fa-solid fa-laptop-medical w-5 text-center text-lg text-purple-500"></i> Jobs & Repair Bench
                 </button>
 
-                <button onclick="switchWindow('showcase')" id="nav-showcase" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-white transition">
-                    <i class="fa-solid fa-globe w-5 text-center text-lg text-pink-500"></i> Web News & Showcase
+                <button onclick="switchWindow('gallery')" id="nav-gallery" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-white transition">
+                    <i class="fa-solid fa-images w-5 text-center text-lg text-pink-500"></i> Repair Gallery (Before/After)
+                </button>
+
+                <button onclick="switchWindow('news')" id="nav-news" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-white transition">
+                    <i class="fa-solid fa-bullhorn w-5 text-center text-lg text-amber-500"></i> Web News & Promotions
                 </button>
             </nav>
         </div>
@@ -484,31 +488,49 @@
                 </div>
             </section>
 
-            <!-- WINDOW 5: CUSTOMER SHOWCASE GALLERY & WEBSITE PUBLISHER -->
-            <section id="window-showcase" class="window-panel space-y-8">
+            <!-- WINDOW: REPAIR GALLERY (before/after photos -> customer website) -->
+            <section id="window-gallery" class="window-panel space-y-8">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="bg-cardbg border border-borderbg p-6 rounded-2xl h-fit">
                         <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-bullhorn text-pink-500"></i> Publish Repair Case / Workshop News
+                            <i class="fa-solid fa-images text-pink-500"></i> Publish Before/After to Gallery
                         </h3>
-                        <form id="formAddPost" onsubmit="event.preventDefault(); publishShowcasePost();" class="space-y-4 text-xs">
+                        <form id="formAddGalleryPost" onsubmit="event.preventDefault(); publishGalleryPost();" class="space-y-4 text-xs">
                             <div>
                                 <label class="block font-bold text-gray-400 mb-1">Headline Title</label>
-                                <input type="text" id="postTitle" required placeholder="e.g. Successful Liquid Damage Recovery on M2 Mac" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none">
+                                <input type="text" id="galleryTitle" required placeholder="e.g. Successful Liquid Damage Recovery on M2 Mac" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none">
                             </div>
                             <div>
-                                <label class="block font-bold text-gray-400 mb-1">Category Tag</label>
-                                <select id="postCategory" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none">
-                                    <option value="COMPLETED_JOB">Repair Gallery Before/After</option>
-                                    <option value="NEWS">Workshop News & Hours</option>
-                                    <option value="TIP">Technician Tip & Guide</option>
-                                    <option value="PROMO">Promotion</option>
+                                <label class="block font-bold text-gray-400 mb-1">Device Category</label>
+                                <select id="galleryCategory" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none">
+                                    <option value="PHONE">Phone Repair</option>
+                                    <option value="LAPTOP">Laptop Repair</option>
+                                    <option value="CONSOLE">Gaming Console</option>
+                                    <option value="SOFTWARE">Software Service</option>
+                                    <option value="OTHER">Other</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-bold text-gray-400 mb-1">Technical Summary / Description</label>
-                                <textarea id="postContent" required rows="4" placeholder="Detail the micro-soldering steps taken to clean corrosion and replace shorted capacitors..." class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none"></textarea>
+                                <label class="block font-bold text-gray-400 mb-1">Device Model</label>
+                                <input type="text" id="galleryDeviceModel" placeholder="e.g. MacBook Pro M2 2023" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none">
                             </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-bold text-gray-400 mb-1">Before Photo</label>
+                                    <input type="file" id="galleryBeforeImage" accept="image/*" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2 text-white text-[11px] focus:border-pink-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-gray-400 mb-1">After Photo</label>
+                                    <input type="file" id="galleryAfterImage" accept="image/*" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2 text-white text-[11px] focus:border-pink-500 outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Description</label>
+                                <textarea id="galleryDescription" rows="3" placeholder="Detail the micro-soldering steps taken to clean corrosion and replace shorted capacitors..." class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-pink-500 outline-none"></textarea>
+                            </div>
+                            <label class="flex items-center gap-2 text-gray-300 font-bold">
+                                <input type="checkbox" id="galleryFeatured" class="rounded"> Mark as Featured
+                            </label>
                             <button type="submit" class="w-full py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition shadow-lg shadow-pink-600/20 uppercase tracking-wider text-[11px]">
                                 Publish Live to Customer Website
                             </button>
@@ -518,13 +540,64 @@
                     <div class="lg:col-span-2 bg-cardbg border border-borderbg rounded-2xl p-6 space-y-4">
                         <div class="flex justify-between items-center border-b border-gray-800 pb-4 flex-wrap gap-2">
                             <div>
-                                <h3 class="text-md font-bold text-white"><i class="fa-solid fa-globe text-pink-500 mr-2"></i> Live Website Gallery Feed Preview</h3>
-                                <p class="text-xs text-gray-400">This is what customers see when visiting the main shop homepage</p>
+                                <h3 class="text-md font-bold text-white"><i class="fa-solid fa-globe text-pink-500 mr-2"></i> Live Gallery Feed Preview</h3>
+                                <p class="text-xs text-gray-400">This is what customers see in the Before/After gallery on the shop homepage</p>
                             </div>
                             <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full">Web Portal Active</span>
                         </div>
 
-                        <div id="showcaseFeed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div id="galleryFeed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <p class="text-xs text-gray-500">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW: WEB NEWS & PROMOTIONS (separate feature, separate model) -->
+            <section id="window-news" class="window-panel space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-cardbg border border-borderbg p-6 rounded-2xl h-fit">
+                        <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-bullhorn text-amber-500"></i> Publish Workshop News / Tip / Promo
+                        </h3>
+                        <form id="formAddNews" onsubmit="event.preventDefault(); publishNewsPost();" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Headline Title</label>
+                                <input type="text" id="newsTitle" required placeholder="e.g. We're now open Saturdays!" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Category Tag</label>
+                                <select id="newsCategory" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none">
+                                    <option value="NEWS">Workshop News & Hours</option>
+                                    <option value="TIP">Technician Tip & Guide</option>
+                                    <option value="PROMO">Promotion</option>
+                                    <option value="COMPLETED_JOB">Completed Job (text only)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Content</label>
+                                <textarea id="newsContent" required rows="4" placeholder="Write the announcement, tip, or promo details..." class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-400 mb-1">Photo (optional)</label>
+                                <input type="file" id="newsImage" accept="image/*" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2 text-white text-[11px] focus:border-amber-500 outline-none">
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition shadow-lg shadow-amber-600/20 uppercase tracking-wider text-[11px]">
+                                Publish Live to Customer Website
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-cardbg border border-borderbg rounded-2xl p-6 space-y-4">
+                        <div class="flex justify-between items-center border-b border-gray-800 pb-4 flex-wrap gap-2">
+                            <div>
+                                <h3 class="text-md font-bold text-white"><i class="fa-solid fa-globe text-amber-500 mr-2"></i> Live News Feed Preview</h3>
+                                <p class="text-xs text-gray-400">Separate from the photo gallery — used for announcements, tips, and promos</p>
+                            </div>
+                            <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full">Web Portal Active</span>
+                        </div>
+
+                        <div id="newsFeed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <p class="text-xs text-gray-500">Loading...</p>
                         </div>
                     </div>
@@ -678,14 +751,15 @@
         let jobsCache = [];
         let sparesCache = [];
         let accessoriesCache = [];
-        let showcaseCache = [];
+        let galleryCache = [];
+        let newsCache = [];
         let serviceTypesCache = [];
         let currentUserId = null;
         let activeJobForModal = null;
         let modalChatPollInterval = null;
 
         /* ================= WINDOW SWITCHING ================= */
-        const WINDOW_ALIASES = { repairs: 'jobs', inventory: 'spares', gallery: 'showcase' };
+        const WINDOW_ALIASES = { repairs: 'jobs', inventory: 'spares', showcase: 'gallery' };
         const windowsLoaded = {};
 
         function switchWindow(windowId) {
@@ -727,7 +801,8 @@
             if (windowId === 'accessories') loadAccessories();
             if (windowId === 'spares') loadSpares();
             if (windowId === 'jobs') { loadJobs(); }
-            if (windowId === 'showcase') loadShowcase();
+            if (windowId === 'gallery') loadGalleryFeed();
+            if (windowId === 'news') loadNewsFeed();
         }
 
         function syncWorkshopDB() {
@@ -1408,30 +1483,112 @@
         /* ================================================================
            5. CUSTOMER SHOWCASE & NEWS PUBLISHER ENGINE
            ================================================================ */
-        async function loadShowcase() {
+        async function loadGalleryFeed() {
             try {
-                const response = await apiRequestRaw('/updates/');
+                const response = await apiRequestRaw('/gallery/');
                 if (!response || !response.ok) return;
-                showcaseCache = asArray(await response.json());
-                renderShowcase();
+                galleryCache = asArray(await response.json());
+                renderGalleryFeed();
             } catch (err) { console.error(err); }
         }
 
-        async function publishShowcasePost() {
-            const title = document.getElementById('postTitle').value;
-            const post_type = document.getElementById('postCategory').value;
-            const content = document.getElementById('postContent').value;
+        async function publishGalleryPost() {
+            const title = document.getElementById('galleryTitle').value;
+            const category = document.getElementById('galleryCategory').value;
+            const device_model = document.getElementById('galleryDeviceModel').value;
+            const description = document.getElementById('galleryDescription').value;
+            const is_featured = document.getElementById('galleryFeatured').checked;
+            const beforeFile = document.getElementById('galleryBeforeImage').files[0];
+            const afterFile = document.getElementById('galleryAfterImage').files[0];
+
+            if (!title) {
+                triggerSystemAlert('Give the gallery post a title first.', 'warning');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('category', category);
+            formData.append('device_model', device_model);
+            formData.append('description', description);
+            formData.append('is_featured', is_featured);
+            if (beforeFile) formData.append('before_image', beforeFile);
+            if (afterFile) formData.append('after_image', afterFile);
+
+            try {
+                const response = await apiRequestRaw('/gallery/', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCSRFToken() },
+                    body: formData
+                });
+                if (response && response.ok) {
+                    document.getElementById('formAddGalleryPost').reset();
+                    await loadGalleryFeed();
+                    triggerSystemAlert("Published to the customer website gallery!", "success");
+                } else if (response) {
+                    const err = await response.json();
+                    triggerSystemAlert(`Could not publish: ${JSON.stringify(err)}`, "warning");
+                }
+            } catch (err) { console.error(err); triggerSystemAlert("Connection error publishing gallery post.", "warning"); }
+        }
+
+        function renderGalleryFeed() {
+            const container = document.getElementById('galleryFeed');
+            if (galleryCache.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 col-span-2">No gallery posts published yet.</p>`;
+                return;
+            }
+            container.innerHTML = '';
+            galleryCache.forEach(post => {
+                container.innerHTML += `
+                    <div class="bg-gray-900/80 border border-gray-800 p-4 rounded-xl space-y-2">
+                        <div class="flex justify-between items-center text-[10px] font-mono">
+                            <span class="px-2 py-0.5 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-full font-bold">${post.category_display || post.category}</span>
+                            ${post.is_featured ? '<span class="text-emerald-400 font-bold">✓ Featured</span>' : ''}
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            ${post.before_image ? `<img src="${post.before_image}" class="rounded-lg w-full h-24 object-cover" alt="Before">` : '<div class="rounded-lg w-full h-24 bg-gray-800 flex items-center justify-center text-gray-600 text-[10px]">No before photo</div>'}
+                            ${post.after_image ? `<img src="${post.after_image}" class="rounded-lg w-full h-24 object-cover" alt="After">` : '<div class="rounded-lg w-full h-24 bg-gray-800 flex items-center justify-center text-gray-600 text-[10px]">No after photo</div>'}
+                        </div>
+                        <h4 class="font-bold text-white text-sm font-sans">${post.title}</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed font-sans">${post.description || ''}</p>
+                    </div>
+                `;
+            });
+        }
+
+        async function loadNewsFeed() {
+            try {
+                const response = await apiRequestRaw('/updates/');
+                if (!response || !response.ok) return;
+                newsCache = asArray(await response.json());
+                renderNewsFeed();
+            } catch (err) { console.error(err); }
+        }
+
+        async function publishNewsPost() {
+            const title = document.getElementById('newsTitle').value;
+            const post_type = document.getElementById('newsCategory').value;
+            const content = document.getElementById('newsContent').value;
+            const imageFile = document.getElementById('newsImage').files[0];
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('post_type', post_type);
+            formData.append('content', content);
+            formData.append('is_published', true);
+            if (imageFile) formData.append('image', imageFile);
 
             try {
                 const response = await apiRequestRaw('/updates/', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-                    body: JSON.stringify({ title, post_type, content, is_published: true })
+                    headers: { 'X-CSRFToken': getCSRFToken() },
+                    body: formData
                 });
                 if (response && response.ok) {
-                    document.getElementById('formAddPost').reset();
-                    await loadShowcase();
-                    triggerSystemAlert("Published live news post to customer web homepage!", "success");
+                    document.getElementById('formAddNews').reset();
+                    await loadNewsFeed();
+                    triggerSystemAlert("Published news post to customer website!", "success");
                 } else if (response) {
                     const err = await response.json();
                     triggerSystemAlert(`Could not publish: ${JSON.stringify(err)}`, "warning");
@@ -1439,21 +1596,22 @@
             } catch (err) { console.error(err); triggerSystemAlert("Connection error publishing post.", "warning"); }
         }
 
-        function renderShowcase() {
-            const container = document.getElementById('showcaseFeed');
-            if (showcaseCache.length === 0) {
+        function renderNewsFeed() {
+            const container = document.getElementById('newsFeed');
+            if (newsCache.length === 0) {
                 container.innerHTML = `<p class="text-xs text-gray-500 col-span-2">No posts published yet.</p>`;
                 return;
             }
-            const categoryLabels = { COMPLETED_JOB: 'REPAIR_GALLERY', NEWS: 'WORKSHOP_NEWS', TIP: 'TECH_TIP', PROMO: 'PROMOTION' };
+            const categoryLabels = { COMPLETED_JOB: 'COMPLETED_JOB', NEWS: 'WORKSHOP_NEWS', TIP: 'TECH_TIP', PROMO: 'PROMOTION' };
             container.innerHTML = '';
-            showcaseCache.forEach(post => {
+            newsCache.forEach(post => {
                 container.innerHTML += `
                     <div class="bg-gray-900/80 border border-gray-800 p-4 rounded-xl space-y-2">
                         <div class="flex justify-between items-center text-[10px] font-mono">
-                            <span class="px-2 py-0.5 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-full font-bold">${categoryLabels[post.post_type] || post.post_type}</span>
+                            <span class="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full font-bold">${categoryLabels[post.post_type] || post.post_type}</span>
                             <span class="text-gray-500">${new Date(post.created_at).toLocaleDateString()}</span>
                         </div>
+                        ${post.image ? `<img src="${post.image}" class="rounded-lg w-full h-28 object-cover" alt="">` : ''}
                         <h4 class="font-bold text-white text-sm font-sans">${post.title}</h4>
                         <p class="text-xs text-gray-400 leading-relaxed font-sans">${post.content}</p>
                     </div>
