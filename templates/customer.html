@@ -1,569 +1,179 @@
-<!DOCTYPE html>
+<!doctype html>
 {% load static %}
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MKUMBWA TRONIX | My Account</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="{% static 'js/api.js' %}"></script>
-    <style>
-        *{ margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root{
-            --blue: #3b82f6; --blue-hover: #2563eb; --blue-glow: rgba(59, 130, 246, 0.15);
-            --green: #10b981; --orange: #f59e0b; --red: #ef4444;
-            --sidebar: #0b0f19; --sidebar2: #111827; --bg: #0f172a;
-            --card: #1e293b; --card-border: #334155;
-            --text-primary: #f8fafc; --text-secondary: #94a3b8; --text-muted: #64748b;
-            --shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        body{ background: var(--bg); font-family: Inter, sans-serif; color: var(--text-primary); overflow-x: hidden; }
-
-        ::-webkit-scrollbar{ width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track{ background: var(--sidebar); }
-        ::-webkit-scrollbar-thumb{ background: var(--card-border); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover{ background: var(--text-muted); }
-
-        .wrapper{ display: flex; min-height: 100vh; }
-
-        /* ============ SIDEBAR ============ */
-        .sidebar{
-            width: 270px; background: linear-gradient(180deg, var(--sidebar), var(--sidebar2)); color: white;
-            position: fixed; left: 0; top: 0; bottom: 0; display: flex; flex-direction: column; z-index: 999;
-            border-right: 1px solid rgba(255,255,255,.05); box-shadow: 4px 0 30px rgba(0,0,0,.4);
-        }
-        .logo{ padding: 30px 25px; border-bottom: 1px solid rgba(255,255,255,.05); background: rgba(0,0,0,.2); }
-        .logo h2{ font-family: "Space Grotesk"; font-size: 22px; font-weight: 700; letter-spacing: -.5px; }
-        .logo span{ color: var(--blue); text-shadow: 0 0 15px var(--blue-glow); }
-        .logo small{ display: block; margin-top: 6px; opacity: .6; letter-spacing: 2.5px; text-transform: uppercase; font-size: 10px; font-weight: 600; }
-        .menu{ padding: 20px; display: flex; flex-direction: column; justify-content: space-between; height: calc(100vh - 100px); }
-        .menu-links{ display: flex; flex-direction: column; gap: 4px; }
-        .menu a{ text-decoration: none; color: var(--text-secondary); padding: 14px 18px; border-radius: 10px; display: flex; align-items: center; gap: 14px; transition: var(--transition); font-size: 14px; font-weight: 500; border: 1px solid transparent; cursor: pointer; }
-        .menu a:hover{ color: white; background: rgba(255,255,255,.04); transform: translateX(4px); border-color: rgba(255,255,255,.05); }
-        .menu a.active{ background: linear-gradient(90deg, var(--blue-hover), var(--blue)); color: white; box-shadow: 0 4px 20px rgba(59,130,246,.3); }
-        .menu-footer{ padding-top: 15px; border-top: 1px solid rgba(255,255,255,.05); margin-top: auto; }
-        .menu-footer a{ color: var(--red); }
-
-        /* ============ MAIN / PANEL SWITCHING ============ */
-        .main{ margin-left: 270px; width: calc(100% - 270px); padding: 35px; }
-        .panel{ display: none; }
-        .panel.active{ display: block; }
-        .page-title h1{ font-family: "Space Grotesk"; font-size: 32px; margin-bottom: 6px; }
-        .page-title p{ color: var(--text-secondary); font-size: 14px; margin-bottom: 30px; }
-
-        /* ============ STAT CARDS ============ */
-        .stat-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card{ background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); }
-        .stat-card .icon{ width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 14px; }
-        .stat-card .value{ font-family: "Space Grotesk"; font-size: 26px; font-weight: 700; }
-        .stat-card .label{ color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
-
-        /* ============ CARD / TABLE ============ */
-        .section{ background: var(--card); border-radius: 20px; padding: 30px; box-shadow: var(--shadow); border: 1px solid var(--card-border); margin-bottom: 25px; }
-        .section h2{ font-family: "Space Grotesk"; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 20px; }
-        table{ width: 100%; border-collapse: collapse; font-size: 14px; }
-        th{ text-align: left; padding: 12px 14px; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--card-border); }
-        td{ padding: 14px; border-bottom: 1px solid rgba(255,255,255,.04); }
-        tr:last-child td{ border-bottom: none; }
-        .badge{ padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; display: inline-block; }
-        .badge-pending{ background: rgba(245,158,11,.15); color: var(--orange); }
-        .badge-progress{ background: rgba(59,130,246,.15); color: var(--blue); }
-        .badge-ready{ background: rgba(16,185,129,.15); color: var(--green); }
-        .badge-completed{ background: rgba(148,163,184,.15); color: var(--text-secondary); }
-        .badge-cancelled{ background: rgba(239,68,68,.15); color: var(--red); }
-        .empty-state{ text-align: center; padding: 40px; color: var(--text-muted); }
-
-        /* ============ ROADMAP / COMING SOON ============ */
-        .roadmap-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-        .roadmap-item{ background: rgba(255,255,255,.02); border: 1px dashed var(--card-border); border-radius: 12px; padding: 18px; display: flex; gap: 14px; align-items: flex-start; }
-        .roadmap-item i{ color: var(--blue); font-size: 18px; margin-top: 2px; }
-        .roadmap-item h4{ font-size: 14px; margin-bottom: 4px; }
-        .roadmap-item p{ font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
-
-        @media(max-width: 768px){
-            .sidebar{ left: -270px; transition: left 0.25s ease; }
-            .sidebar.open{ left: 0; }
-            .main{ margin-left: 0; width: 100%; padding: 20px; padding-top: 90px; }
-            .stat-grid, .roadmap-grid{ grid-template-columns: 1fr; }
-            .mobile-topbar{
-                display: flex; align-items: center; justify-content: space-between;
-                position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 998;
-                background: var(--sidebar2); padding: 0 18px; border-bottom: 1px solid rgba(255,255,255,.08);
-            }
-            .mobile-topbar h2{ font-family: "Space Grotesk"; font-size: 17px; color: white; margin: 0; }
-            .mobile-topbar h2 span{ color: var(--blue); }
-            .mobile-menu-btn{ background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 6px; }
-            .sidebar-backdrop{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 997; }
-            .sidebar-backdrop.open{ display: block; }
-        }
-        .mobile-topbar{ display: none; }
-
-        /* ============================================================
-           CHAT MODAL
-           ============================================================ */
-        .chat-modal-overlay{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 1300; align-items: center; justify-content: center; }
-        .chat-modal-box{ width: 460px; max-width: 92vw; height: 560px; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
-        .chat-modal-header{ padding: 16px 20px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
-        .chat-modal-header h3{ font-family: "Space Grotesk"; font-size: 16px; }
-        .chat-modal-header button{ background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; }
-        .chat-messages{ flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-bubble{ max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.4; }
-        .chat-bubble-mine{ align-self: flex-end; background: var(--blue); color: white; border-bottom-right-radius: 3px; }
-        .chat-bubble-theirs{ align-self: flex-start; background: rgba(255,255,255,.06); border-bottom-left-radius: 3px; }
-        .chat-sender{ display: block; font-size: 11px; font-weight: 700; opacity: .8; margin-bottom: 2px; }
-        .chat-time{ display: block; font-size: 10px; opacity: .6; margin-top: 4px; text-align: right; }
-        .chat-input-row{ display: flex; gap: 10px; padding: 14px 16px; border-top: 1px solid var(--card-border); }
-        .chat-input-row input{ flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--card-border); border-radius: 20px; padding: 10px 16px; color: var(--text-primary); outline: none; font-size: 13px; }
-        .chat-input-row button{ background: var(--blue); border: none; color: white; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .chat-input-row button:hover{ background: var(--blue-hover); }
-        .btn-chat-row{ padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--card-border); background: rgba(255,255,255,.06); color: var(--text-primary); display: inline-flex; align-items: center; gap: 6px; }
-        .btn-chat-row:hover{ background: rgba(255,255,255,.1); }
-    </style>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MKUMBWA TRONIX | Customer Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <!-- Existing project API bridge: keeps auth headers and error handling consistent. -->
+  <script src="{% static 'js/api.js' %}"></script>
+  <style>
+    :root{--bg:#0b0f19;--panel:#111827;--panel2:#151e2e;--border:#1f2937;--text:#f3f4f6;--muted:#94a3b8;--brand:#3b82f6;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--violet:#8b5cf6}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:14px 'Plus Jakarta Sans',sans-serif} button,input,select{font:inherit} button{cursor:pointer}.mono{font-family:'JetBrains Mono',monospace}.app{min-height:100vh;display:flex}
+    .side{width:274px;background:var(--panel);border-right:1px solid var(--border);padding:22px 14px;display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;z-index:20}.brand{display:flex;gap:12px;align-items:center;padding:6px 12px 22px;border-bottom:1px solid var(--border)}.brand-mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#2563eb,#60a5fa);display:grid;place-items:center;box-shadow:0 10px 22px #2563eb44}.brand b{font-size:16px}.brand b span{color:#60a5fa}.brand small{display:block;color:#64748b;font-size:9px;letter-spacing:1.3px;margin-top:3px}.nav{padding:18px 3px;display:grid;gap:3px}.nav button{border:0;background:transparent;color:#94a3b8;text-align:left;padding:11px 12px;border-radius:11px;font-weight:700;display:flex;align-items:center;gap:12px}.nav button i{width:18px;text-align:center;color:#60a5fa}.nav button:hover,.nav button.active{color:white;background:#1e293b}.nav button.active{box-shadow:inset 3px 0 var(--brand)}.side-footer{margin-top:auto;padding:15px 10px 0;border-top:1px solid var(--border);color:var(--muted);font-size:12px}.side-footer button{margin-top:10px;background:none;border:0;color:#94a3b8;padding:0}.main{margin-left:274px;width:calc(100% - 274px);padding:26px;max-width:1800px}.top{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:28px}.eyebrow{color:#60a5fa;text-transform:uppercase;letter-spacing:1.2px;font-size:10px;font-weight:800}.top h1{font-size:25px;margin:4px 0}.top p{margin:0;color:var(--muted)}.top-actions{display:flex;align-items:center;gap:10px}.icon-btn,.primary,.secondary{border:1px solid var(--border);border-radius:11px;padding:11px 14px;color:white;background:#182235;font-weight:700}.icon-btn{width:42px;padding:0;height:42px;position:relative}.notice-dot{position:absolute;width:8px;height:8px;background:var(--red);border:2px solid var(--panel);border-radius:50%;top:7px;right:7px}.primary{background:var(--brand);border-color:var(--brand)}.primary:disabled,.secondary:disabled{opacity:.6;cursor:default}.secondary{background:transparent;color:#cbd5e1}.panel{display:none}.panel.active{display:block}.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.card{background:linear-gradient(145deg,var(--panel),#0f1726);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 12px 28px #00000018}.stat{display:flex;justify-content:space-between;align-items:start}.stat i{padding:11px;border-radius:11px;background:#1e3a5f;color:#60a5fa}.stat .green{background:#073d35;color:#34d399}.stat .amber{background:#4a3106;color:#fbbf24}.stat .violet{background:#2e1d59;color:#a78bfa}.stat b{display:block;font-size:28px;margin-top:7px}.stat span,.muted{color:var(--muted)}.hero{padding:22px;background:radial-gradient(circle at 82% 13%,#2563eb4a,transparent 31%),linear-gradient(130deg,#111d35,#111827);display:flex;justify-content:space-between;gap:22px;align-items:center}.hero h2{margin:6px 0 8px;font-size:23px}.hero p{margin:0;color:#cbd5e1;max-width:610px;line-height:1.6}.quick{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px}.two{grid-template-columns:1.55fr 1fr;margin-top:18px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:13px}.section-head h2{font-size:16px;margin:0}.link{border:0;background:transparent;color:#60a5fa;font-weight:700}.repair{padding:14px 0;border-bottom:1px solid #1e293b;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center}.repair:last-child,.feed-item:last-child{border:0}.device-icon{width:42px;height:42px;border-radius:11px;background:#182235;display:grid;place-items:center;color:#a78bfa}.repair h3{font-size:13px;margin:0 0 4px}.repair p{margin:0;color:var(--muted);font-size:12px}.badge{font-size:10px;font-weight:800;letter-spacing:.4px;padding:6px 8px;border-radius:99px;white-space:nowrap}.processing,.testing{background:#1e3a5f;color:#93c5fd}.awaiting,.pending{background:#4a3106;color:#fcd34d}.ready{background:#073d35;color:#6ee7b7}.completed{background:#182235;color:#cbd5e1}.cancelled{background:#451a1a;color:#fca5a5}.feed-item{display:flex;gap:11px;padding:13px 0;border-bottom:1px solid #1e293b}.feed-item i{color:#60a5fa;margin-top:2px}.feed-item b{font-size:13px}.feed-item p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.feed-item time{font-size:11px;color:#64748b}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:720px}.table th{text-align:left;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:11px}.table td{padding:14px 11px;border-top:1px solid var(--border);font-size:13px}.table td:first-child{font-weight:700}.empty{text-align:center!important;color:#64748b;padding:28px!important}.track{display:flex;align-items:center;gap:0;margin:20px 0 8px}.step{position:relative;flex:1;text-align:center;color:#64748b;font-size:10px;font-weight:800}.step:before{content:'';display:block;margin:0 auto 8px;width:11px;height:11px;border-radius:50%;background:#334155;position:relative;z-index:1}.step:not(:last-child):after{content:'';height:2px;background:#334155;width:100%;position:absolute;top:5px;left:50%}.step.done,.step.current{color:#93c5fd}.step.done:before,.step.current:before{background:#3b82f6}.step.done:after{background:#3b82f6}.step.current:before{box-shadow:0 0 0 5px #3b82f633}.gallery{grid-template-columns:repeat(3,1fr)}.gallery-item{min-height:170px;overflow:hidden;padding:0;position:relative;background:#172033}.gallery-item img{width:100%;height:170px;object-fit:cover}.gallery-item div{padding:12px}.gallery-item p{margin:4px 0 0;color:var(--muted);font-size:12px}.placeholder{display:grid;place-items:center;text-align:center;min-height:164px;color:#64748b;border:1px dashed #334155;border-radius:12px;padding:18px}.form-grid{grid-template-columns:repeat(2,1fr)}.field{display:grid;gap:7px}.field label{font-weight:700;font-size:12px;color:#cbd5e1}.field input,.field select{background:#0b1220;border:1px solid #334155;border-radius:10px;color:#e5e7eb;padding:12px;outline:none}.form-note{font-size:12px;color:#94a3b8;line-height:1.5;background:#172033;border-left:3px solid var(--amber);padding:12px;border-radius:6px}.modal-backdrop{display:none;position:fixed;inset:0;background:#020617bb;z-index:50;place-items:center;padding:16px}.modal-backdrop.open{display:grid}.modal{width:min(600px,100%);max-height:88vh;overflow:auto;background:#111827;border:1px solid #334155;border-radius:17px;padding:20px}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h2{margin:0;font-size:17px}.close{border:0;background:transparent;color:#94a3b8;font-size:22px}.messages{min-height:220px;max-height:380px;overflow:auto;margin:18px 0;padding:8px;display:grid;gap:9px}.msg{padding:10px 12px;max-width:78%;border-radius:11px;background:#1e293b;justify-self:start}.msg.mine{background:#2563eb;justify-self:end}.msg small{display:block;opacity:.65;margin-top:4px}.chat-form{display:flex;gap:9px}.chat-form input{flex:1;background:#0b1220;border:1px solid #334155;color:#fff;border-radius:10px;padding:11px}.toast{position:fixed;right:22px;bottom:22px;background:#172033;border:1px solid #334155;padding:13px 16px;border-radius:11px;display:none;z-index:60}.toast.show{display:block}.mobile-bar{display:none}
+    @media(max-width:1000px){.stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.gallery{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.side{transform:translateX(-100%);transition:.25s}.side.open{transform:translateX(0);box-shadow:15px 0 40px #0008}.main{margin:0;width:100%;padding:16px}.mobile-bar{display:flex;background:#111827;border-bottom:1px solid var(--border);padding:12px 16px;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:15}.mobile-bar button{background:transparent;border:0;color:#fff;font-size:20px}.top{margin-top:14px}.top h1{font-size:21px}.top-actions .secondary{display:none}.hero{display:block}.hero h2{font-size:20px}.stats{grid-template-columns:1fr 1fr;gap:10px}.card{padding:14px}.stat b{font-size:23px}.gallery{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.track{overflow:auto;padding-bottom:8px}.step{min-width:83px}.top-actions .primary{padding:10px}.nav{padding-top:12px}}
+  </style>
 </head>
-<body data-initial-tab="{{ initial_tab|default:'overview' }}">
-<div class="wrapper">
+<body>
+<div class="mobile-bar"><b>MKUMBWA<span style="color:#60a5fa">TRONIX</span></b><button onclick="toggleNav()"><i class="fa-solid fa-bars"></i></button></div>
+<div class="app">
+ <aside class="side" id="side"><div><div class="brand"><div class="brand-mark"><i class="fa-solid fa-microchip"></i></div><div><b>MKUMBWA<span>TRONIX</span></b><small>CUSTOMER COMMAND CENTER</small></div></div><nav class="nav">
+  <button class="active" data-view="dashboard"><i class="fa-solid fa-grid-2"></i>Dashboard</button><button data-view="repairs"><i class="fa-solid fa-screwdriver-wrench"></i>My Repairs</button><button data-view="devices"><i class="fa-solid fa-mobile-screen"></i>My Devices</button><button data-view="payments"><i class="fa-solid fa-file-invoice-dollar"></i>Quotes & Payments</button><button data-view="updates"><i class="fa-solid fa-tower-broadcast"></i>Workshop Updates</button><button data-view="gallery"><i class="fa-solid fa-images"></i>Repair Gallery</button><button data-view="service"><i class="fa-solid fa-circle-plus"></i>Request Service</button><button data-view="account"><i class="fa-solid fa-user-gear"></i>My Account</button>
+ </nav></div><div class="side-footer"><b>Need assistance?</b><br>Message your repair technician from any active repair.<br><button onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out</button></div></aside>
+ <main class="main"><header class="top"><div><div class="eyebrow">Customer workspace</div><h1>Good day<span id="customerName"></span>.</h1><p>Your devices, repairs, and workshop activity in one place.</p></div><div class="top-actions"><button class="icon-btn" title="Notifications" onclick="openNotifications()"><i class="fa-regular fa-bell"></i><i class="notice-dot" id="notifDot" style="display:none"></i></button><button class="secondary" onclick="go('repairs')"><i class="fa-solid fa-location-dot"></i> Track repair</button><button class="primary" onclick="go('service')"><i class="fa-solid fa-plus"></i> Request service</button></div></header>
 
-    <!-- ============ MOBILE TOPBAR (hidden on desktop) ============ -->
-    <div class="mobile-topbar">
-        <h2>MKUMBWA <span>TRONIX</span></h2>
-        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
-    </div>
-    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+ <section id="dashboard" class="panel active"><div class="grid stats"><div class="card stat"><div><span>Active repairs</span><b id="activeCount">—</b><small class="muted">Being worked on</small></div><i class="fa-solid fa-screwdriver-wrench"></i></div><div class="card stat"><div><span>Awaiting approval</span><b id="pendingCount">—</b><small class="muted">Assessment or quote pending</small></div><i class="fa-solid fa-clipboard-check amber"></i></div><div class="card stat"><div><span>Ready for pickup</span><b id="readyCount">—</b><small class="muted">Collection available</small></div><i class="fa-solid fa-box-open green"></i></div><div class="card stat"><div><span>Completed repairs</span><b id="completeCount">—</b><small class="muted">Service history</small></div><i class="fa-solid fa-award violet"></i></div></div>
+ <div class="card hero"><div><div class="eyebrow">Your workshop office</div><h2>Everything under control.</h2><p>Follow repair progress, speak with your technician, view your payment record, and keep the whole life of your devices organized.</p><div class="quick"><button class="primary" onclick="go('repairs')"><i class="fa-solid fa-list-check"></i> View my repairs</button><button class="secondary" onclick="go('updates')"><i class="fa-solid fa-rss"></i> Workshop news</button></div></div><i class="fa-solid fa-laptop-medical" style="font-size:78px;color:#60a5fa;opacity:.7"></i></div>
+ <div class="grid two"><div class="card"><div class="section-head"><h2>Active work</h2><button class="link" onclick="go('repairs')">See all repairs</button></div><div id="activeRepairs"><div class="empty">Loading your repairs…</div></div></div><div class="card"><div class="section-head"><h2>Workshop activity</h2><button class="link" onclick="go('updates')">All updates</button></div><div id="activityFeed"><div class="empty">Loading workshop updates…</div></div></div></div></section>
 
-    <!-- ============ CHAT MODAL (shared) ============ -->
-    <div class="chat-modal-overlay" id="chatModal">
-        <div class="chat-modal-box">
-            <div class="chat-modal-header">
-                <h3 id="chatModalTitle">Chat</h3>
-                <button onclick="closeChatModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="chat-messages" id="chatMessagesContainer">
-                <p class="empty-state">Loading messages...</p>
-            </div>
-            <form class="chat-input-row" id="chatSendForm">
-                <input type="text" id="chatMessageInput" placeholder="Type a message..." autocomplete="off" required>
-                <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
-            </form>
-        </div>
-    </div>
+ <section id="repairs" class="panel"><div class="card"><div class="section-head"><div><div class="eyebrow">Live status</div><h2>My Repairs & Tracking</h2></div><button class="primary" onclick="go('service')">New repair</button></div><div id="trackingCard" class="placeholder"><i class="fa-solid fa-location-crosshairs" style="font-size:27px"></i><p>Select an active repair to see its progress timeline.</p></div></div><div class="card" style="margin-top:16px"><div class="section-head"><h2>All service requests</h2><span class="muted" id="repairTotal"></span></div><div class="table-wrap"><table class="table"><thead><tr><th>Ticket & device</th><th>Service</th><th>Status</th><th>Quote</th><th>Requested</th><th>Action</th></tr></thead><tbody id="repairsTable"><tr><td colspan="6" class="empty">Loading your repairs…</td></tr></tbody></table></div></div><div class="card" style="margin-top:16px"><div class="section-head"><h2>Repair history</h2><span class="muted">Completed or cancelled tickets</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Device</th><th>Service</th><th>Final price</th><th>Completed</th><th>Status</th></tr></thead><tbody id="historyTable"><tr><td colspan="5" class="empty">Loading history…</td></tr></tbody></table></div></div></section>
 
-    <div class="sidebar">
-        <div class="logo">
-            <h2>MKUMBWA <span>TRONIX</span></h2>
-            <small>Customer Account</small>
-        </div>
-        <div class="menu">
-            <div class="menu-links">
-                <a data-panel="overview" class="active"><i class="fa-solid fa-house"></i> Overview</a>
-                <a data-panel="bookings"><i class="fa-solid fa-screwdriver-wrench"></i> My Bookings</a>
-                <a data-panel="payments"><i class="fa-solid fa-credit-card"></i> Payments</a>
-                <a data-panel="roadmap"><i class="fa-solid fa-rocket"></i> Coming Soon</a>
-            </div>
-            <div class="menu-footer">
-                <a onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-            </div>
-        </div>
-    </div>
+ <section id="devices" class="panel"><div class="card"><div class="section-head"><div><div class="eyebrow">Frontend-ready area</div><h2>My Devices</h2></div><button class="primary" onclick="showToast('A device-saving API has not been supplied yet.')"><i class="fa-solid fa-plus"></i> Add device</button></div><div class="placeholder"><i class="fa-solid fa-mobile-screen-button" style="font-size:30px"></i><p>Your registered phones, laptops, consoles, serial numbers, and repair history will live here.<br><small>This page intentionally does not assume a devices API exists.</small></p></div></div></section>
 
-    <div class="main">
+ <section id="payments" class="panel"><div class="card"><div class="section-head"><div><div class="eyebrow">Recorded transactions</div><h2>Quotes & Payments</h2></div><button class="secondary" onclick="showToast('Invoice downloads need a confirmed backend endpoint.')"><i class="fa-solid fa-download"></i> Download receipt</button></div><div class="form-note">Quotes are shown from each repair request when provided. Approval, online payment, invoice PDFs, and receipt downloads are deliberately held as integration hooks until their endpoints are supplied.</div><div class="table-wrap"><table class="table"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Reference</th></tr></thead><tbody id="paymentsTable"><tr><td colspan="5" class="empty">Loading payment history…</td></tr></tbody></table></div></div></section>
 
-        <!-- ================= OVERVIEW ================= -->
-        <div id="panel-overview" class="panel active">
-            <div class="page-title">
-                <h1>Welcome back<span id="overviewCustomerName"></span></h1>
-                <p>Here's a snapshot of your repairs and account activity.</p>
-            </div>
+ <section id="updates" class="panel"><div class="card"><div class="section-head"><div><div class="eyebrow">From the workshop</div><h2>Updates, News & Promotions</h2></div><button class="secondary" onclick="loadUpdates()"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div id="updatesList" class="grid"><div class="empty">Loading workshop updates…</div></div></div></section>
 
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <div class="icon" style="background:rgba(59,130,246,.15); color:var(--blue);"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-                    <div class="value" id="statActive">–</div>
-                    <div class="label">Active Repairs</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon" style="background:rgba(245,158,11,.15); color:var(--orange);"><i class="fa-solid fa-hourglass-half"></i></div>
-                    <div class="value" id="statPending">–</div>
-                    <div class="label">Pending Assessment</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon" style="background:rgba(16,185,129,.15); color:var(--green);"><i class="fa-solid fa-box-open"></i></div>
-                    <div class="value" id="statReady">–</div>
-                    <div class="label">Ready for Pickup</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon" style="background:rgba(148,163,184,.15); color:var(--text-secondary);"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                    <div class="value" id="statCompleted">–</div>
-                    <div class="label">Completed Jobs</div>
-                </div>
-            </div>
+ <section id="gallery" class="panel"><div class="card"><div class="section-head"><div><div class="eyebrow">Workshop showcase</div><h2>Repair Gallery</h2></div><button class="secondary" onclick="loadGallery()"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div id="galleryGrid" class="grid gallery"><div class="placeholder">Loading repair gallery…</div></div></div></section>
 
-            <div class="section">
-                <h2><i class="fa-solid fa-bolt text-amber-500"></i> Recent Activity</h2>
-                <div id="recentActivityContainer">
-                    <p class="empty-state">Loading your recent bookings...</p>
-                </div>
-            </div>
-        </div>
+ <section id="service" class="panel"><div class="card"><div class="eyebrow">New service request</div><h2>Tell us what your device needs.</h2><p class="muted">Submit this and it lands straight on your account — no re-entering details, track it instantly from "My Repairs".</p><form id="serviceForm" class="grid form-grid" style="margin-top:20px"><div class="field"><label>Device type</label><select id="svcDeviceType" required><option value="">Select…</option><option>Phone</option><option>Laptop</option><option>Desktop</option><option>Game console</option><option>Other electronics</option></select></div><div class="field"><label>Brand and model</label><input id="svcDeviceModel" required placeholder="e.g. iPhone 13 Pro"></div><div class="field"><label>Service needed</label><select id="svcServiceType"><option value="">General diagnostics</option></select></div><div class="field"><label>Contact phone</label><input id="svcPhone" required placeholder="Phone number for updates"></div><div class="field" style="grid-column:1/-1"><label>Describe the issue</label><input id="svcNotes" required placeholder="What happened and when did it begin?"></div><div style="grid-column:1/-1"><button class="primary" type="submit" id="svcSubmitBtn"><i class="fa-solid fa-paper-plane"></i> Submit request</button></div></form></div></section>
 
-        <!-- ================= MY BOOKINGS ================= -->
-        <div id="panel-bookings" class="panel">
-            <div class="page-title">
-                <h1>My Bookings</h1>
-                <p>Every repair or service request tied to your account, current and past.</p>
-            </div>
+ <section id="account" class="panel"><div class="card"><div class="eyebrow">Account area</div><h2>Profile & Preferences</h2><div class="form-note" style="margin:16px 0" id="acctNote">Loading your profile…</div><div class="grid form-grid"><div class="field"><label>Full name</label><input id="acctName" placeholder="Your name"></div><div class="field"><label>Email address</label><input id="acctEmail" type="email" placeholder="you@example.com"></div><div class="field"><label>Phone number</label><input id="acctPhone" placeholder="Your phone number"></div><div class="field"><label>Address</label><input id="acctAddress" placeholder="Your address"></div></div><div style="margin-top:16px"><button class="primary" id="acctSaveBtn" onclick="saveAccount()"><i class="fa-solid fa-floppy-disk"></i> Save changes</button></div></div></section>
+ </main></div>
+ <div id="chatModal" class="modal-backdrop"><div class="modal"><div class="modal-head"><div><div class="eyebrow">Repair conversation</div><h2 id="chatTitle">Chat with technician</h2></div><button class="close" onclick="closeChat()">×</button></div><div class="messages" id="messages"><div class="empty">Loading messages…</div></div><form class="chat-form" id="chatForm"><input id="chatInput" autocomplete="off" placeholder="Type a message…" required><button class="primary">Send</button></form></div></div>
+ <div id="notifModal" class="modal-backdrop"><div class="modal"><div class="modal-head"><div><div class="eyebrow">Alerts</div><h2>Notifications</h2></div><button class="close" onclick="closeNotifications()">×</button></div><div class="messages" id="notifList"><div class="empty">Loading notifications…</div></div><div style="text-align:right"><button class="secondary" onclick="markAllNotificationsRead()"><i class="fa-solid fa-check-double"></i> Mark all read</button></div></div></div>
+ <div id="toast" class="toast"></div>
+ <script>
+ /* ================= AUTH GUARD ================= */
+ if(!localStorage.getItem('access_token')){ window.location.href='/'; }
 
-            <div class="section">
-                <h2><i class="fa-solid fa-list-check text-amber-500"></i> Current & In Progress</h2>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr><th>Device</th><th>Service</th><th>Status</th><th>Quoted Price</th><th>Requested</th><th>Chat</th></tr>
-                        </thead>
-                        <tbody id="currentBookingsBody">
-                            <tr><td colspan="6" class="empty-state">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+ const state={repairs:[],chatId:null,poll:null}; const esc=s=>String(s??'—').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+ const statusLabel={PENDING:'Pending assessment',ASSIGNED:'Assigned',PROCESSING:'In progress',AWAITING_PARTS:'Awaiting parts',TESTING:'Quality testing',READY:'Ready for pickup',COMPLETED:'Completed',CANCELLED:'Cancelled'};
+ const money=v=>v===null||v===undefined||v===''?'Pending quote':'TZS '+Number(v).toLocaleString(); const date=v=>v?new Date(v).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+ function badge(s){let c={PENDING:'pending',ASSIGNED:'processing',PROCESSING:'processing',AWAITING_PARTS:'awaiting',TESTING:'testing',READY:'ready',COMPLETED:'completed',CANCELLED:'cancelled'}[s]||'pending';return `<span class="badge ${c}">${esc(statusLabel[s]||s||'Unknown')}</span>`}
+ function go(id){document.querySelector(`[data-view="${id}"]`).click()} function toggleNav(){document.getElementById('side').classList.toggle('open')} function showToast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),4300)}
+ document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-view]').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.view).classList.add('active');document.getElementById('side').classList.remove('open');if(b.dataset.view==='account')loadAccount()}));
+ function logoutUser(){localStorage.clear();location.href='/'} function api(path,opts){return typeof apiRequestRaw==='function'?apiRequestRaw(path,opts):fetch(path,opts)} function csrf(){return document.cookie.split('; ').find(x=>x.startsWith('csrftoken='))?.split('=')[1]||''}
 
-            <div class="section">
-                <h2><i class="fa-solid fa-clock-rotate-left text-amber-500"></i> History (Completed / Cancelled)</h2>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr><th>Device</th><th>Service</th><th>Status</th><th>Final Price</th><th>Completed</th></tr>
-                        </thead>
-                        <tbody id="historyBookingsBody">
-                            <tr><td colspan="5" class="empty-state">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+ /* ================= REPAIRS ================= */
+ async function loadRepairs(){try{let r=await api('/requests/');if(!r?.ok)throw 0;let d=await r.json();state.repairs=d.results||d||[];renderRepairs()}catch(e){['activeRepairs','repairsTable','historyTable'].forEach(id=>document.getElementById(id).innerHTML='<div class="empty">Could not load repairs.</div>');}}
+ function renderRepairs(){let a=state.repairs.filter(x=>!['COMPLETED','CANCELLED'].includes(x.status)),h=state.repairs.filter(x=>['COMPLETED','CANCELLED'].includes(x.status));let count=(ss)=>state.repairs.filter(x=>ss.includes(x.status)).length;activeCount.textContent=count(['ASSIGNED','PROCESSING','AWAITING_PARTS','TESTING']);pendingCount.textContent=count(['PENDING']);readyCount.textContent=count(['READY']);completeCount.textContent=count(['COMPLETED']);repairTotal.textContent=state.repairs.length+' total tickets';activeRepairs.innerHTML=a.length?a.slice(0,4).map(x=>`<div class="repair"><div class="device-icon"><i class="fa-solid fa-${/laptop|computer/i.test(x.device_type||x.device_model)?'laptop':'mobile-screen'}"></i></div><div><h3>${esc(x.device_model||x.device_type||'Device repair')}</h3><p class="mono">SR-${esc(x.id)} · ${esc(x.service_type_name||x.service_type||'Service request')}</p></div><div>${badge(x.status)} <button class="link" onclick="openTrack(${x.id})">Track</button></div></div>`).join(''):'<div class="empty">No active repairs right now.</div>';repairsTable.innerHTML=a.length?a.map(x=>`<tr><td><span class="mono">SR-${esc(x.id)}</span><br>${esc(x.device_model||x.device_type)}</td><td>${esc(x.service_type_name||x.service_type)}</td><td>${badge(x.status)}</td><td>${money(x.quoted_price)}</td><td>${date(x.created_at)}</td><td><button class="secondary" onclick="openChat(${x.id})"><i class="fa-regular fa-comments"></i> Chat</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">No active repair requests.</td></tr>';historyTable.innerHTML=h.length?h.map(x=>`<tr><td>${esc(x.device_model||x.device_type)}</td><td>${esc(x.service_type_name||x.service_type)}</td><td>${x.final_price?money(x.final_price):'—'}</td><td>${date(x.completed_at)}</td><td>${badge(x.status)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No completed repair history yet.</td></tr>';if(a[0])openTrack(a[0].id)}
+ function openTrack(id){let x=state.repairs.find(a=>a.id==id);if(!x)return;let order=['PENDING','ASSIGNED','PROCESSING','AWAITING_PARTS','TESTING','READY','COMPLETED'],current=order.indexOf(x.status);if(x.status==='AWAITING_PARTS')current=3;trackingCard.className='';trackingCard.innerHTML=`<div class="eyebrow">SR-${esc(x.id)} · ${esc(x.device_model||x.device_type)}</div><h2 style="margin:6px 0">${esc(statusLabel[x.status]||x.status)}</h2><p class="muted">${esc(x.service_type_name||x.service_type||'Service request')} · Requested ${date(x.created_at)}</p><div class="track">${['Received','Assigned','Repairing','Parts','Testing','Ready','Completed'].map((n,i)=>`<div class="step ${i<current?'done':i===current?'current':''}">${n}</div>`).join('')}</div><button class="primary" onclick="openChat(${x.id})"><i class="fa-regular fa-comments"></i> Message technician</button>`}
 
-        <!-- ================= PAYMENTS ================= -->
-        <div id="panel-payments" class="panel">
-            <div class="page-title">
-                <h1>Payment History</h1>
-                <p>All payments recorded against your service requests.</p>
-            </div>
+ /* ================= PAYMENTS ================= */
+ async function loadPayments(){try{let r=await api('/payments/');if(!r?.ok)throw 0;let d=await r.json(),p=d.results||d||[];paymentsTable.innerHTML=p.length?p.map(x=>`<tr><td>${date(x.created_at)}</td><td>${money(x.amount)}</td><td>${esc(x.method||'—')}</td><td>${badge(x.status==='CONFIRMED'?'COMPLETED':x.status==='FAILED'?'CANCELLED':'PENDING')}</td><td class="mono">${esc(x.transaction_ref)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No payments recorded yet.</td></tr>'}catch(e){paymentsTable.innerHTML='<tr><td colspan="5" class="empty">Could not load payment history.</td></tr>'}}
 
-            <div class="section">
-                <h2><i class="fa-solid fa-receipt text-amber-500"></i> Transactions</h2>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr><th>Date</th><th>Amount (TZS)</th><th>Method</th><th>Status</th><th>Reference</th></tr>
-                        </thead>
-                        <tbody id="paymentsBody">
-                            <tr><td colspan="5" class="empty-state">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+ /* ================= UPDATES & GALLERY ================= */
+ async function loadUpdates(){try{let r=await api('/updates/');if(!r?.ok)throw 0;let d=await r.json(),u=d.results||d||[];let html=u.length?u.map(x=>`<article class="card"><div class="eyebrow">${esc(x.category||x.type||'Workshop update')}</div><h2 style="margin:6px 0;font-size:17px">${esc(x.title||'Workshop update')}</h2><p class="muted">${esc(x.content||x.body||x.description||'')}</p><small class="muted">${date(x.created_at||x.published_at)}</small></article>`).join(''):'<div class="placeholder">No workshop updates have been published yet.</div>';updatesList.innerHTML=html;activityFeed.innerHTML=u.slice(0,4).map(x=>`<div class="feed-item"><i class="fa-solid fa-tower-broadcast"></i><div><b>${esc(x.title||'Workshop update')}</b><p>${esc(x.content||x.body||x.description||'').slice(0,120)}</p><time>${date(x.created_at||x.published_at)}</time></div></div>`).join('')||'<div class="empty">No workshop activity yet.</div>'}catch(e){updatesList.innerHTML='<div class="placeholder">Workshop updates could not be loaded.</div>';activityFeed.innerHTML='<div class="empty">Workshop updates could not be loaded.</div>'}}
+ async function loadGallery(){try{let r=await api('/gallery/');if(!r?.ok)throw 0;let d=await r.json(),g=d.results||d||[];galleryGrid.innerHTML=g.length?g.map(x=>`<article class="card gallery-item">${x.image||x.image_url?`<img src="${esc(x.image||x.image_url)}" alt="${esc(x.title||'Repair gallery item')}">`:'<div class="placeholder"><i class="fa-solid fa-image"></i></div>'}<div><b>${esc(x.title||'Workshop repair')}</b><p>${esc(x.description||x.caption||'')}</p></div></article>`).join(''):'<div class="placeholder">No repair gallery posts published yet.</div>'}catch(e){galleryGrid.innerHTML='<div class="placeholder">Repair gallery could not be loaded.</div>'}}
 
-        <!-- ================= COMING SOON ================= -->
-        <div id="panel-roadmap" class="panel">
-            <div class="page-title">
-                <h1>What's Coming</h1>
-                <p>Features planned for the customer portal — this list is a placeholder, edit it to match the actual roadmap.</p>
-            </div>
+ /* ================= CHAT (per ticket, owner-only via backend) ================= */
+ async function openChat(id){state.chatId=id;chatTitle.textContent='Chat — Ticket SR-'+id;chatModal.classList.add('open');await loadMessages();clearInterval(state.poll);state.poll=setInterval(loadMessages,8000)}function closeChat(){chatModal.classList.remove('open');clearInterval(state.poll);state.chatId=null}async function loadMessages(){if(!state.chatId)return;try{let r=await api(`/service-requests/${state.chatId}/messages/`);if(!r?.ok)throw 0;let m=await r.json();messages.innerHTML=m.length?m.map(x=>`<div class="msg ${x.sender_role==='CUSTOMER'?'mine':''}"><b>${esc(x.sender_display_name||'')}</b><br>${esc(x.body)}<small>${new Date(x.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>`).join(''):'<div class="empty">No messages yet. Ask your technician about this repair.</div>';messages.scrollTop=messages.scrollHeight}catch(e){messages.innerHTML='<div class="empty">Could not load messages.</div>'}}
+ chatForm.addEventListener('submit',async e=>{e.preventDefault();let body=chatInput.value.trim();if(!body||!state.chatId)return;try{let r=await api(`/service-requests/${state.chatId}/messages/`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf()},body:JSON.stringify({body})});if(!r?.ok)throw 0;chatInput.value='';loadMessages()}catch(e){showToast('Message could not be sent. Please try again.')}});
 
-            <div class="section">
-                <div class="roadmap-grid">
-                    <div class="roadmap-item" style="border-style:solid; border-color:var(--green);">
-                        <i class="fa-solid fa-circle-check" style="color:var(--green);"></i>
-                        <div><h4>Live Chat With Your Technician <span style="color:var(--green); font-size:11px; font-weight:700;">— LIVE NOW</span></h4><p>Message the technician assigned to your repair directly from the "My Bookings" tab.</p></div>
-                    </div>
-                    <div class="roadmap-item">
-                        <i class="fa-solid fa-calendar-check"></i>
-                        <div><h4>Online Booking &amp; Rescheduling</h4><p>Book a new repair slot or reschedule an existing one without calling in.</p></div>
-                    </div>
-                    <div class="roadmap-item">
-                        <i class="fa-solid fa-bell"></i>
-                        <div><h4>SMS / WhatsApp Status Alerts</h4><p>Get notified automatically the moment your device's status changes.</p></div>
-                    </div>
-                    <div class="roadmap-item">
-                        <i class="fa-solid fa-file-invoice"></i>
-                        <div><h4>Downloadable Invoices &amp; Receipts</h4><p>Generate a PDF receipt for any completed payment.</p></div>
-                    </div>
-                    <div class="roadmap-item">
-                        <i class="fa-solid fa-star"></i>
-                        <div><h4>Loyalty &amp; Repeat-Customer Rewards</h4><p>Earn credit toward future repairs and accessory purchases.</p></div>
-                    </div>
-                    <div class="roadmap-item">
-                        <i class="fa-solid fa-download"></i>
-                        <div><h4>Digital Delivery Downloads</h4><p>Download recovered files, license keys, and reports straight from a completed ticket.</p></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+ /* ================= REQUEST SERVICE — books directly onto this account ================= */
+ async function loadServiceTypes(){try{let r=await api('/services/');if(!r?.ok)throw 0;let d=await r.json();let list=d.results||d||[];let sel=document.getElementById('svcServiceType');list.forEach(s=>{let o=document.createElement('option');o.value=s.id;o.textContent=s.name+(s.category_display?' · '+s.category_display:'');sel.appendChild(o)})}catch(e){/* select still usable without categories, service_type is optional */}}
+ document.getElementById('serviceForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const deviceType=svcDeviceType.value, deviceModel=svcDeviceModel.value.trim(), notes=svcNotes.value.trim(), phone=svcPhone.value.trim(), svcId=svcServiceType.value;
+    if(!deviceType||!deviceModel||!notes||!phone){showToast('Please fill in all required fields.');return}
+    const btn=document.getElementById('svcSubmitBtn'); btn.disabled=true;
+    try{
+        const payload={device_type:deviceType, device_model:deviceModel, customer_notes:notes, customer_phone:phone, channel:'ONLINE_TO_PHYSICAL'};
+        if(svcId) payload.service_type_id=svcId;
+        const r=await api('/requests/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf()},body:JSON.stringify(payload)});
+        if(!r?.ok){const err=await r.json().catch(()=>({}));throw new Error(err.detail||Object.values(err).flat().join(' ')||'Request could not be submitted.')}
+        const data=await r.json();
+        e.target.reset();
+        showToast('Request submitted — Ticket SR-'+data.id+' is now on your account.');
+        await loadRepairs();
+        go('repairs');
+    }catch(err){
+        showToast(err.message||'Could not submit request, please try again.');
+    }finally{btn.disabled=false}
+ });
 
-    </div>
-</div>
+ /* ================= ACCOUNT — reads/writes the logged-in user's own profile ================= */
+ let profileState=null;
+ async function loadProfileGlobal(){
+    try{
+        const p=await fetchProfile();
+        if(p){profileState=p;customerName.textContent=', '+(p.first_name||p.username);if(svcPhone&&!svcPhone.value)svcPhone.value=p.phone||''}
+    }catch(e){}
+ }
+ async function loadAccount(){
+    acctNote.textContent='Loading your profile…';
+    try{
+        const p=profileState||await fetchProfile();
+        if(!p){acctNote.textContent='Could not load your profile.';return}
+        profileState=p;
+        acctName.value=[p.first_name,p.last_name].filter(Boolean).join(' ');
+        acctEmail.value=p.email||'';
+        acctPhone.value=p.phone||'';
+        acctAddress.value=p.address||'';
+        acctNote.textContent='Keep your contact details current so we can reach you about repair updates.';
+    }catch(e){acctNote.textContent='Could not load your profile.'}
+ }
+ async function saveAccount(){
+    const parts=acctName.value.trim().split(/\s+/).filter(Boolean);
+    const first=parts.shift()||'', last=parts.join(' ');
+    const payload={first_name:first, last_name:last, email:acctEmail.value.trim(), phone:acctPhone.value.trim(), address:acctAddress.value.trim()};
+    const btn=acctSaveBtn; btn.disabled=true;
+    try{
+        const res=await updateProfile(payload);
+        if(!res.ok) throw new Error('Update rejected: '+JSON.stringify(res.data||{}));
+        profileState=res.data;
+        customerName.textContent=', '+(res.data.first_name||res.data.username);
+        localStorage.setItem('user_first', res.data.first_name||res.data.username);
+        showToast('Profile updated.');
+    }catch(e){showToast('Could not save profile changes.')}
+    finally{btn.disabled=false}
+ }
 
-<script>
-    /* ================= AUTH GUARD ================= */
-    const token = localStorage.getItem('access_token');
-    if (!token) { window.location.href = '/'; }
+ /* ================= NOTIFICATIONS — scoped to this account only ================= */
+ let notifCache=[];
+ async function loadNotifications(){
+    try{
+        const r=await api('/notifications/');
+        if(!r?.ok)throw 0;
+        const d=await r.json();
+        notifCache=d.results||d||[];
+        const unread=notifCache.filter(n=>!n.is_read).length;
+        notifDot.style.display=unread>0?'block':'none';
+    }catch(e){}
+ }
+ function renderNotifList(){
+    notifList.innerHTML = notifCache.length ? notifCache.map(n=>`<div class="msg${n.is_read?'':' mine'}" style="max-width:100%;justify-self:stretch;cursor:pointer" onclick="markNotificationRead(${n.id})"><b>${esc(n.title)}</b><br>${esc(n.message)}<small>${date(n.created_at)}${n.is_read?'':' · unread — tap to mark read'}</small></div>`).join('') : '<div class="empty">No notifications yet.</div>';
+ }
+ async function openNotifications(){
+    notifModal.classList.add('open');
+    notifList.innerHTML='<div class="empty">Loading notifications…</div>';
+    await loadNotifications();
+    renderNotifList();
+ }
+ function closeNotifications(){notifModal.classList.remove('open')}
+ async function markNotificationRead(id){
+    const n=notifCache.find(x=>x.id===id);
+    if(!n||n.is_read)return;
+    try{
+        await api(`/notifications/${id}/mark_read/`,{method:'POST',headers:{'X-CSRFToken':csrf()}});
+        n.is_read=true; renderNotifList();
+        notifDot.style.display=notifCache.some(x=>!x.is_read)?'block':'none';
+    }catch(e){}
+ }
+ async function markAllNotificationsRead(){
+    try{
+        await api('/notifications/mark_all_read/',{method:'POST',headers:{'X-CSRFToken':csrf()}});
+        notifCache.forEach(n=>n.is_read=true); renderNotifList(); notifDot.style.display='none';
+    }catch(e){showToast('Could not mark all as read.')}
+ }
 
-    function logoutUser() {
-        localStorage.clear();
-        window.location.href = '/';
-    }
-
-    /* ================= MOBILE SIDEBAR TOGGLE ================= */
-    function toggleMobileSidebar(){
-        document.querySelector('.sidebar').classList.toggle('open');
-        document.getElementById('sidebarBackdrop').classList.toggle('open');
-    }
-    function closeMobileSidebar(){
-        document.querySelector('.sidebar').classList.remove('open');
-        document.getElementById('sidebarBackdrop').classList.remove('open');
-    }
-
-    /* ================= TAB SWITCHING ================= */
-    document.querySelectorAll('.menu a[data-panel]').forEach(link => {
-        link.addEventListener('click', () => {
-            const name = link.dataset.panel;
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.getElementById('panel-' + name).classList.add('active');
-            document.querySelectorAll('.menu a[data-panel]').forEach(a => a.classList.remove('active'));
-            link.classList.add('active');
-            closeMobileSidebar();
-        });
-    });
-
-    /* ================= STATUS BADGE HELPER ================= */
-    const STATUS_BADGE_MAP = {
-        PENDING: 'badge-pending',
-        PROCESSING: 'badge-progress',
-        AWAITING_PARTS: 'badge-progress',
-        TESTING: 'badge-progress',
-        READY: 'badge-ready',
-        COMPLETED: 'badge-completed',
-        CANCELLED: 'badge-cancelled'
-    };
-    const STATUS_LABEL_MAP = {
-        PENDING: 'Pending Assessment',
-        PROCESSING: 'In Progress',
-        AWAITING_PARTS: 'Awaiting Parts',
-        TESTING: 'Quality Testing',
-        READY: 'Ready for Pickup',
-        COMPLETED: 'Completed',
-        CANCELLED: 'Cancelled'
-    };
-    function statusBadge(status) {
-        const cls = STATUS_BADGE_MAP[status] || 'badge-pending';
-        const label = STATUS_LABEL_MAP[status] || status;
-        return `<span class="badge ${cls}">${label}</span>`;
-    }
-    function formatDate(iso) {
-        if (!iso) return '—';
-        return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    }
-    function formatTZS(amount) {
-        if (amount === null || amount === undefined) return '—';
-        return Number(amount).toLocaleString();
-    }
-
-    /* ================= DATA LOADING ================= */
-    let allBookings = [];
-
-    async function loadCustomerBookings() {
-        try {
-            const response = await apiRequestRaw('/requests/');
-            if (!response) return;
-            if (!response.ok) throw new Error('Failed to load bookings.');
-
-            const data = await response.json();
-            allBookings = data.results || data;
-            renderOverviewStats(allBookings);
-            renderRecentActivity(allBookings);
-            renderBookingTables(allBookings);
-        } catch (err) {
-            console.error('Booking load failure:', err);
-            document.getElementById('currentBookingsBody').innerHTML =
-                `<tr><td colspan="5" class="empty-state" style="color:var(--red);"><i class="fa-solid fa-triangle-exclamation"></i> Could not load your bookings.</td></tr>`;
-        }
-    }
-
-    async function loadCustomerPayments() {
-        try {
-            const response = await apiRequestRaw('/payments/');
-            if (!response) return;
-            if (!response.ok) throw new Error('Failed to load payments.');
-
-            const data = await response.json();
-            const payments = data.results || data;
-            renderPayments(payments);
-        } catch (err) {
-            console.error('Payment load failure:', err);
-            document.getElementById('paymentsBody').innerHTML =
-                `<tr><td colspan="5" class="empty-state" style="color:var(--red);"><i class="fa-solid fa-triangle-exclamation"></i> Could not load payment history.</td></tr>`;
-        }
-    }
-
-    function renderOverviewStats(bookings) {
-        const active = bookings.filter(b => ['PROCESSING', 'AWAITING_PARTS', 'TESTING'].includes(b.status)).length;
-        const pending = bookings.filter(b => b.status === 'PENDING').length;
-        const ready = bookings.filter(b => b.status === 'READY').length;
-        const completed = bookings.filter(b => b.status === 'COMPLETED').length;
-
-        document.getElementById('statActive').textContent = active;
-        document.getElementById('statPending').textContent = pending;
-        document.getElementById('statReady').textContent = ready;
-        document.getElementById('statCompleted').textContent = completed;
-    }
-
-    function renderRecentActivity(bookings) {
-        const container = document.getElementById('recentActivityContainer');
-        const recent = bookings.slice(0, 5);
-
-        if (recent.length === 0) {
-            container.innerHTML = `<p class="empty-state">No bookings yet. Once you request a service, it will show up here.</p>`;
-            return;
-        }
-
-        container.innerHTML = recent.map(b => `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid rgba(255,255,255,.04);">
-                <div>
-                    <div style="font-weight:600;">${b.device_model || b.device_type}</div>
-                    <div style="font-size:12px; color:var(--text-secondary);">Requested ${formatDate(b.created_at)}</div>
-                </div>
-                ${statusBadge(b.status)}
-            </div>
-        `).join('');
-    }
-
-    function renderBookingTables(bookings) {
-        const current = bookings.filter(b => !['COMPLETED', 'CANCELLED'].includes(b.status));
-        const history = bookings.filter(b => ['COMPLETED', 'CANCELLED'].includes(b.status));
-
-        const currentBody = document.getElementById('currentBookingsBody');
-        currentBody.innerHTML = current.length === 0
-            ? `<tr><td colspan="6" class="empty-state">No active bookings right now.</td></tr>`
-            : current.map(b => `
-                <tr>
-                    <td>${b.device_model || b.device_type}</td>
-                    <td>${b.service_type_name || b.service_type || '—'}</td>
-                    <td>${statusBadge(b.status)}</td>
-                    <td>${b.quoted_price ? 'TZS ' + formatTZS(b.quoted_price) : 'Pending quote'}</td>
-                    <td>${formatDate(b.created_at)}</td>
-                    <td><button class="btn-chat-row" onclick="openChatModal(${b.id})"><i class="fa-solid fa-comments"></i> Chat</button></td>
-                </tr>
-            `).join('');
-
-        const historyBody = document.getElementById('historyBookingsBody');
-        historyBody.innerHTML = history.length === 0
-            ? `<tr><td colspan="5" class="empty-state">No completed or cancelled bookings yet.</td></tr>`
-            : history.map(b => `
-                <tr>
-                    <td>${b.device_model || b.device_type}</td>
-                    <td>${b.service_type_name || b.service_type || '—'}</td>
-                    <td>${statusBadge(b.status)}</td>
-                    <td>${b.final_price ? 'TZS ' + formatTZS(b.final_price) : '—'}</td>
-                    <td>${formatDate(b.completed_at)}</td>
-                </tr>
-            `).join('');
-    }
-
-    function renderPayments(payments) {
-        const body = document.getElementById('paymentsBody');
-        body.innerHTML = payments.length === 0
-            ? `<tr><td colspan="5" class="empty-state">No payments recorded yet.</td></tr>`
-            : payments.map(p => `
-                <tr>
-                    <td>${formatDate(p.created_at)}</td>
-                    <td>TZS ${formatTZS(p.amount)}</td>
-                    <td>${p.method}</td>
-                    <td>${statusBadge(p.status === 'CONFIRMED' ? 'COMPLETED' : (p.status === 'FAILED' ? 'CANCELLED' : 'PENDING'))}</td>
-                    <td style="font-family: 'JetBrains Mono', monospace; font-size:12px;">${p.transaction_ref || '—'}</td>
-                </tr>
-            `).join('');
-    }
-
-    /* ================= CUSTOMER NAME ================= */
-    const firstName = localStorage.getItem('user_first');
-    if (firstName) {
-        document.getElementById('overviewCustomerName').textContent = `, ${firstName}`;
-    }
-
-    /* ================= INIT ================= */
-    document.addEventListener('DOMContentLoaded', () => {
-        loadCustomerBookings();
-        loadCustomerPayments();
-    });
-
-    /* ================================================================
-       CHAT MODAL
-       ================================================================ */
-    let currentChatSrId = null;
-    let chatPollInterval = null;
-
-    function openChatModal(srId) {
-        currentChatSrId = srId;
-        document.getElementById('chatModalTitle').textContent = `Chat — Ticket SR-${srId}`;
-        document.getElementById('chatModal').style.display = 'flex';
-        loadChatMessages();
-        if (chatPollInterval) clearInterval(chatPollInterval);
-        chatPollInterval = setInterval(loadChatMessages, 8000);
-    }
-
-    function closeChatModal() {
-        document.getElementById('chatModal').style.display = 'none';
-        if (chatPollInterval) clearInterval(chatPollInterval);
-        chatPollInterval = null;
-        currentChatSrId = null;
-    }
-
-    async function loadChatMessages() {
-        if (!currentChatSrId) return;
-        try {
-            const response = await apiRequestRaw(`/service-requests/${currentChatSrId}/messages/`, { method: 'GET' });
-            if (!response || !response.ok) return;
-            const messages = await response.json();
-            const container = document.getElementById('chatMessagesContainer');
-            container.innerHTML = messages.length === 0
-                ? '<p class="empty-state">No messages yet. Ask your technician anything about the repair.</p>'
-                : messages.map(m => `
-                    <div class="chat-bubble ${m.sender_role === 'CUSTOMER' ? 'chat-bubble-mine' : 'chat-bubble-theirs'}">
-                        <span class="chat-sender">${m.sender_display_name}</span>
-                        <p>${m.body}</p>
-                        <span class="chat-time">${new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                `).join('');
-            container.scrollTop = container.scrollHeight;
-        } catch (err) {
-            console.error("Chat load failure:", err);
-        }
-    }
-
-    document.getElementById('chatSendForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const input = document.getElementById('chatMessageInput');
-        const body = input.value.trim();
-        if (!body || !currentChatSrId) return;
-        try {
-            const response = await apiRequestRaw(`/service-requests/${currentChatSrId}/messages/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-                body: JSON.stringify({ body })
-            });
-            if (response && response.ok) {
-                input.value = '';
-                loadChatMessages();
-            }
-        } catch (err) {
-            console.error("Chat send failure:", err);
-        }
-    });
-</script>
-</body>
-</html>
+ document.addEventListener('DOMContentLoaded',()=>{
+    let n=localStorage.getItem('user_first');if(n)customerName.textContent=', '+n;
+    loadRepairs();loadPayments();loadUpdates();loadGallery();loadServiceTypes();loadProfileGlobal();loadNotifications();
+    setInterval(loadNotifications,30000);
+ });
+ </script>
+</body></html>
