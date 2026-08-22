@@ -620,6 +620,14 @@
                 <h3 class="text-sm font-bold text-white uppercase" id="modalJobRef">Job Update #000</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+            <div id="modalDetailsPanel" class="bg-gray-900/60 border border-gray-800 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
+                <div><span class="text-gray-500">Customer:</span> <span id="modalDetailCustomer" class="text-white font-bold"></span></div>
+                <div><span class="text-gray-500">Contact:</span> <span id="modalDetailPhone" class="text-white"></span></div>
+                <div><span class="text-gray-500">Registered by:</span> <span id="modalDetailCreatedBy" class="text-white"></span></div>
+                <div><span class="text-gray-500">Assigned technician:</span> <span id="modalDetailTechnician" class="text-white"></span></div>
+                <div class="sm:col-span-2"><span class="text-gray-500">Device:</span> <span id="modalDetailDevice" class="text-white"></span></div>
+                <div class="sm:col-span-2"><span class="text-gray-500">Issue reported:</span> <span id="modalDetailNotes" class="text-gray-300"></span></div>
+            </div>
             <div>
                 <label class="block font-bold text-gray-400 mb-1">Update Pipeline Status</label>
                 <select id="modalJobStatus" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white outline-none">
@@ -1387,10 +1395,10 @@
                 const clientName = job.customer ? `${job.customer.first_name} ${job.customer.last_name}` : (job.customer_name || 'Walk-In');
                 const techBlock = job.technician
                     ? `<span class="text-emerald-400"><i class="fa-solid fa-user-check"></i> ${job.technician.first_name || job.technician.username}</span>`
-                    : `<button onclick="claimJob(${job.id})" class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-600/40">Claim</button>`;
+                    : `<button onclick="event.stopPropagation();claimJob(${job.id})" class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-600/40">Claim</button>`;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-800/40 border-b border-gray-800/50">
+                    <tr onclick="openModal(${job.id})" class="hover:bg-gray-800/40 border-b border-gray-800/50 cursor-pointer">
                         <td class="p-3 text-purple-400 font-bold">#SR-${job.id}</td>
                         <td class="p-3">
                             <span class="text-white font-sans font-bold block">${clientName}</span>
@@ -1404,8 +1412,8 @@
                         </td>
                         <td class="p-3">${techBlock}</td>
                         <td class="p-3 text-right">
-                            <button onclick="openModal(${job.id})" class="px-3 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600/40">
-                                Update / Broadcast
+                            <button onclick="event.stopPropagation();openModal(${job.id})" class="px-3 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600/40">
+                                Details / Update
                             </button>
                         </td>
                     </tr>
@@ -1420,6 +1428,21 @@
             activeJobForModal = jobId;
             const clientName = job.customer ? `${job.customer.first_name} ${job.customer.last_name}` : (job.customer_name || 'Walk-In');
             document.getElementById('modalJobRef').textContent = `Job Update #SR-${job.id} (${clientName})`;
+
+            // Details panel — who this ticket belongs to, who logged it, who's on it.
+            document.getElementById('modalDetailCustomer').textContent = job.customer
+                ? `${clientName} (linked account @${job.customer.username})`
+                : `${clientName} (guest — no account)`;
+            document.getElementById('modalDetailPhone').textContent = job.customer_phone || (job.customer && job.customer.phone) || '—';
+            document.getElementById('modalDetailCreatedBy').textContent = job.created_by
+                ? `${job.created_by.first_name || job.created_by.username}${job.created_by.role ? ' (' + job.created_by.role + ')' : ''}`
+                : '—';
+            document.getElementById('modalDetailTechnician').textContent = job.technician
+                ? (job.technician.first_name || job.technician.username)
+                : 'Unassigned — not yet claimed';
+            document.getElementById('modalDetailDevice').textContent = `${job.device_type || '—'} — ${job.device_model || '—'}`;
+            document.getElementById('modalDetailNotes').textContent = job.customer_notes || '—';
+
             document.getElementById('modalJobStatus').value = job.status;
             document.getElementById('modalQuoted').value = job.quoted_price || '';
             document.getElementById('modalFinal').value = job.final_price || '';

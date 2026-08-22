@@ -81,7 +81,14 @@ class IsTechnicianOrAdmin(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         
-        is_tech_bool = getattr(request.user, 'is_technician', False)
+        # BUG FIX: `is_technician` on the User model is a *method*
+        # (`def is_technician(self): ...`), not a boolean attribute. Reading
+        # it via getattr(user, 'is_technician', False) returns the bound
+        # method object itself — which is always truthy — so this used to
+        # grant technician/admin access to every authenticated user,
+        # including plain customers, across every endpoint gated by this
+        # permission class. Call it as a method to get the real result.
+        is_tech_bool = request.user.is_technician() if callable(getattr(request.user, 'is_technician', None)) else False
         is_staff_bool = getattr(request.user, 'is_staff', False)
         is_superuser_bool = getattr(request.user, 'is_superuser', False)
         user_role_str = str(getattr(request.user, 'role', '')).upper()
@@ -134,7 +141,9 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
         # through the office — unclaimed, claimed by a colleague, in
         # progress, or completed — is visible so any technician can help
         # manage the queue, not only their own claimed jobs.
-        if getattr(user, 'role', None) == 'TECHNICIAN' or getattr(user, 'is_technician', False):
+        # (is_technician() is called as a method here — see IsTechnicianOrAdmin
+        # above for why getattr(user, 'is_technician', False) is unsafe.)
+        if getattr(user, 'role', None) == 'TECHNICIAN' or (callable(getattr(user, 'is_technician', None)) and user.is_technician()):
             return ServiceRequest.objects.all()
 
         # 👤 Customer: Strictly limited to their own tickets
@@ -175,7 +184,7 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
             # unassigned as before, so the reception pool model is untouched.
             initial_status = self.request.data.get('status', 'PENDING')
             technician_obj = None
-            if initial_status != 'PENDING' and (role == 'TECHNICIAN' or getattr(user, 'is_technician', False)):
+            if initial_status != 'PENDING' and (role == 'TECHNICIAN' or (callable(getattr(user, 'is_technician', None)) and user.is_technician())):
                 technician_obj = user
 
             serializer.save(customer=customer_obj, created_by=user, technician=technician_obj)
