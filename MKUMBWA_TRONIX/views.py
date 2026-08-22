@@ -33,7 +33,8 @@ from .serializers import (
     ServiceStatusHistorySerializer, ServiceDeliveryAssetSerializer,
     CategorySerializer, ProductSerializer, PaymentSerializer,
     NotificationSerializer, GalleryPostSerializer, WorkUpdateSerializer,
-    MessageSerializer,InventoryItemSerializer, AccessorySerializer
+    MessageSerializer,InventoryItemSerializer, AccessorySerializer,
+    UserSerializer
 )
 
 User = get_user_model()
@@ -91,6 +92,7 @@ class IsTechnicianOrAdmin(permissions.BasePermission):
         return False
 
 
+
 # ─────────────────────────────────────────────
 # SERVICE TYPE
 # ─────────────────────────────────────────────
@@ -128,12 +130,12 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
         if user.is_staff or getattr(user, 'role', None) == 'ADMIN':
             return ServiceRequest.objects.all()
 
-        # 🔧 Technician: View unclaimed pending jobs + jobs assigned to them
+        # 🔧 Technician: Full shop visibility. Any ticket that has come
+        # through the office — unclaimed, claimed by a colleague, in
+        # progress, or completed — is visible so any technician can help
+        # manage the queue, not only their own claimed jobs.
         if getattr(user, 'role', None) == 'TECHNICIAN' or getattr(user, 'is_technician', False):
-            return ServiceRequest.objects.filter(
-                Q(status='PENDING', technician__isnull=True) |
-                Q(technician=user)
-            ).distinct()
+            return ServiceRequest.objects.all()
 
         # 👤 Customer: Strictly limited to their own tickets
         if getattr(user, 'role', None) == 'CUSTOMER':
@@ -162,7 +164,21 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
                     customer_obj = User.objects.get(id=customer_id)
                 except (User.DoesNotExist, ValueError):
                     customer_obj = None
-            serializer.save(customer=customer_obj, created_by=user)
+
+            # A technician logging a ticket that's already past PENDING (e.g.
+            # they're recording a job that's already in progress or done) is
+            # implicitly claiming it. Without this, the ticket has no
+            # technician AND a non-PENDING status — which matches neither
+            # half of get_queryset()'s filter, making it invisible to every
+            # technician (including its creator) and dropping it out of the
+            # dashboard totals entirely. ADMIN-created tickets are left
+            # unassigned as before, so the reception pool model is untouched.
+            initial_status = self.request.data.get('status', 'PENDING')
+            technician_obj = None
+            if initial_status != 'PENDING' and (role == 'TECHNICIAN' or getattr(user, 'is_technician', False)):
+                technician_obj = user
+
+            serializer.save(customer=customer_obj, created_by=user, technician=technician_obj)
             return
  
         # Fallback (shouldn't normally be hit given permission_classes)
@@ -223,6 +239,29 @@ class CreatePublicBookingView(generics.CreateAPIView):
             customer=customer_user,
             created_by=customer_user if customer_user else None
         )
+
+
+class CustomerSearchView(generics.ListAPIView):
+    """
+    Technician/Admin lookup of registered customer accounts, used by the
+    reception intake form to link a walk-in booking to the customer's real
+    account instead of saving a disconnected guest name/phone label.
+    Deliberately returns nothing for an empty query so it never dumps the
+    full customer list.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [IsTechnicianOrAdmin]
+
+    def get_queryset(self):
+        q = self.request.query_params.get('q', '').strip()
+        if not q:
+            return User.objects.none()
+        return User.objects.filter(role='CUSTOMER').filter(
+            Q(username__icontains=q) |
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q) |
+            Q(phone__icontains=q)
+        ).order_by('first_name')[:10]
 
 
 class ClaimRepairJobView(APIView):

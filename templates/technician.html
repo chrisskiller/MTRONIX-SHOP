@@ -411,9 +411,15 @@
                         <span class="text-xs font-mono text-purple-400">Calculates Daily Profit Automatically</span>
                     </h3>
                     <form id="formAddJob" onsubmit="event.preventDefault(); createJobTicket();" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                        <div>
+                        <div class="relative">
                             <label class="block font-bold text-gray-400 mb-1">Customer Name *</label>
-                            <input type="text" id="jobCustName" required placeholder="John Mgamba" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none">
+                            <input type="text" id="jobCustName" required autocomplete="off" placeholder="John Mgamba" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-white outline-none">
+                            <input type="hidden" id="jobCustomerId" value="">
+                            <div id="jobCustResults" class="hidden absolute z-20 top-full left-0 right-0 mt-1 bg-gray-900 border border-gray-700 rounded-xl overflow-hidden shadow-xl max-h-56 overflow-y-auto"></div>
+                            <div id="jobCustLinkedBadge" class="hidden mt-1 text-[10px] text-emerald-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-link"></i> Linked to registered account: <b id="jobCustLinkedName"></b>
+                                <button type="button" onclick="clearCustomerLink()" class="text-gray-400 hover:text-white underline">change</button>
+                            </div>
                         </div>
                         <div>
                             <label class="block font-bold text-gray-400 mb-1">Phone Number *</label>
@@ -1221,9 +1227,69 @@
             } catch (err) { console.error(err); }
         }
 
+        // ─── Customer account lookup for reception intake ───
+        // Avoids embedding JSON in inline onclick attributes (unsafe if a
+        // name/phone contains a quote) — matches are kept in memory and
+        // referenced by index instead.
+        let jobCustSearchTimer = null;
+        let jobCustMatches = [];
+        const escHtml = s => String(s ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+        document.getElementById('jobCustName').addEventListener('input', function () {
+            document.getElementById('jobCustomerId').value = '';
+            document.getElementById('jobCustLinkedBadge').classList.add('hidden');
+            const q = this.value.trim();
+            const box = document.getElementById('jobCustResults');
+            clearTimeout(jobCustSearchTimer);
+            if (q.length < 2) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+            jobCustSearchTimer = setTimeout(async () => {
+                try {
+                    const r = await apiRequestRaw(`/customers/search/?q=${encodeURIComponent(q)}`);
+                    if (!r || !r.ok) return;
+                    jobCustMatches = await r.json();
+                    if (!jobCustMatches.length) {
+                        box.innerHTML = '<div class="p-2.5 text-gray-500 text-[11px]">No matching account — this will save as a guest booking.</div>';
+                        box.classList.remove('hidden');
+                        return;
+                    }
+                    box.innerHTML = jobCustMatches.map((c, i) => `
+                        <div class="p-2.5 hover:bg-gray-800 cursor-pointer border-b border-gray-800 last:border-0" onclick="selectJobCustomer(${i})">
+                            <div class="text-white font-bold">${escHtml(((c.first_name || '') + ' ' + (c.last_name || '')).trim() || c.username)}</div>
+                            <div class="text-gray-400 text-[10px]">${escHtml(c.phone || 'no phone')} · @${escHtml(c.username)}</div>
+                        </div>`).join('');
+                    box.classList.remove('hidden');
+                } catch (e) { /* silent — falls back to guest booking */ }
+            }, 300);
+        });
+
+        function selectJobCustomer(i) {
+            const c = jobCustMatches[i];
+            if (!c) return;
+            document.getElementById('jobCustName').value = ((c.first_name || '') + ' ' + (c.last_name || '')).trim() || c.username;
+            document.getElementById('jobCustPhone').value = c.phone || '';
+            document.getElementById('jobCustomerId').value = c.id;
+            document.getElementById('jobCustResults').classList.add('hidden');
+            document.getElementById('jobCustResults').innerHTML = '';
+            document.getElementById('jobCustLinkedName').textContent = '@' + c.username;
+            document.getElementById('jobCustLinkedBadge').classList.remove('hidden');
+        }
+
+        function clearCustomerLink() {
+            document.getElementById('jobCustomerId').value = '';
+            document.getElementById('jobCustLinkedBadge').classList.add('hidden');
+            document.getElementById('jobCustResults').classList.add('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#jobCustName') && !e.target.closest('#jobCustResults')) {
+                document.getElementById('jobCustResults')?.classList.add('hidden');
+            }
+        });
+
         async function createJobTicket() {
             const customer_name = document.getElementById('jobCustName').value;
             const customer_phone = document.getElementById('jobCustPhone').value;
+            const customer_id = document.getElementById('jobCustomerId').value;
             const device_type = document.getElementById('jobDeviceType').value;
             const device_model = document.getElementById('jobDeviceModel').value;
             const serviceDesc = document.getElementById('jobServiceDesc').value.trim();
@@ -1238,14 +1304,20 @@
             }
 
             try {
+                const payload = {
+                    customer_name, customer_phone, device_type, device_model,
+                    quoted_price: totalCharge, status,
+                    customer_notes: serviceDesc
+                };
+                // Only send customer_id when a registered account was actually
+                // selected from search — omitting it keeps guest bookings
+                // working exactly as before.
+                if (customer_id) payload.customer_id = customer_id;
+
                 const response = await apiRequestRaw('/requests/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-                    body: JSON.stringify({
-                        customer_name, customer_phone, device_type, device_model,
-                        quoted_price: totalCharge, status,
-                        customer_notes: serviceDesc
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 if (!response || !response.ok) {
@@ -1264,8 +1336,9 @@
                 }
 
                 document.getElementById('formAddJob').reset();
+                clearCustomerLink();
                 await Promise.all([loadJobs(), loadSpares(), loadAccessories()]);
-                triggerSystemAlert(`Job Ticket #SR-${newJob.id} registered for ${customer_name}.`, "success");
+                triggerSystemAlert(`Job Ticket #SR-${newJob.id} registered for ${customer_name}${customer_id ? ' (linked account)' : ' (guest)'}.`, "success");
             } catch (err) {
                 console.error(err);
                 triggerSystemAlert("Connection error registering job.", "warning");

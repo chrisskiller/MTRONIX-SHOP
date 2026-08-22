@@ -31,6 +31,7 @@ urlpatterns = [
     # Dedicated endpoint for a technician to claim an unassigned request.
     # This maps to the dedicated view needed for the frontend JS to call.
     path('tech/claim-job/<int:pk>/', views.ClaimRepairJobView.as_view(), name='tech-claim-job'),
+    path('customers/search/', views.CustomerSearchView.as_view(), name='customer-search'),
     path('public/book/', views.CreatePublicBookingView.as_view(), name='public-booking'),
     path('service-requests/<int:pk>/messages/', views.ServiceRequestMessagesView.as_view(), name='sr-messages'),
     path('public/verify-ticket/', views.VerifyTicketView.as_view(), name='verify-ticket'),
